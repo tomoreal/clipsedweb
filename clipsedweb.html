@@ -1,0 +1,639 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="author" content="Makoto Tomo" />
+<meta name="keywords" content="clipsedweb, javascript, jquery, replace, regExp, 置換, 正規表現" />
+<meta name="description" content="正規表現に対応した置換webサービス。windows soft clipsed の web版。" />
+<meta name="description" content="version 0.9.9 2015/05/22" />
+<title>clipsedWeb</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript">
+var myRireki = [], MyhistoryNo = 0; myRegRireki = [], MyRegHistoryNo = 0;
+
+function firstscript() {
+	$('#upper').focus();
+}
+
+function showHistory() {
+	// 履歴番号を画面に表示
+	var moji = MyhistoryNo + "/" + myRireki.length;
+	$('#s_rireki').html(moji);
+}
+$(document).on('click', '.btn_history', function(event){
+	// 置換文字列の履歴を表示
+	var btnid  = $(this).attr("id");
+	if (btnid == "myfirstbtn") {	//履歴先頭を表示
+		if (MyhistoryNo >= 1) MyhistoryNo=1;
+	}
+	else if (btnid == "mybeforbtn") {	//置換前を表示
+		if (MyhistoryNo > 1) MyhistoryNo--;
+	}
+	else if (btnid == "myafterbtn") {	//置換後を表示
+		if (MyhistoryNo < myRireki.length) MyhistoryNo++;
+	}
+	else if (btnid == "mylastbtn") {	//履歴末端を表示
+		MyhistoryNo= myRireki.length;
+	}
+	$('#upper').val(myRireki[MyhistoryNo-1]);
+	showHistory();
+});
+
+function showRegHistory() {
+	// 履歴番号を画面に表示
+	var moji = MyReghistoryNo + "/" + myRegRireki.length;
+	$('#s_reg_rireki').html(moji);
+}
+$(document).on('click', '.btn_reg_history', function(event){
+	// 置換文字列の履歴を表示
+	var btnid  = $(this).attr("id");
+	if (btnid == "myfirstbtn") {	//履歴先頭を表示
+		if (MyReghistoryNo >= 1) MyReghistoryNo=1;
+	}
+	else if (btnid == "mybeforbtn") {	//置換前を表示
+		if (MyReghistoryNo > 1) MyReghistoryNo--;
+	}
+	else if (btnid == "myafterbtn") {	//置換後を表示
+		if (MyReghistoryNo < myRegRireki.length) MyReghistoryNo++;
+	}
+	else if (btnid == "mylastbtn") {	//履歴末端を表示
+		MyReghistoryNo= myRegRireki.length;
+	}
+	var source = myRegRireki[MyReghistoryNo-1].replace(/\\\\/g,"%5C").replace(/\\\//g,"%2F");
+	var regsam = source.split("/");  //セパレータは/。
+	$('#mybefor').val(regsam[1].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
+	$('#myafter').val(regsam[2].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
+	$('#mysw').val(regsam[3]);
+	showRegHistory();
+});
+
+
+function sel_text(){
+	$('#upper').focus();
+	$('#upper').select();
+}
+
+function copy_text(){
+	$('#upper').focus();
+	$('#upper').select();
+	document.execCommand('copy');
+}
+function copy_clipboard(){
+	$('#upper').focus();
+	$('#upper').select();
+	document.execCommand('paste');
+}
+
+function oneshot() {
+	copy_clipboard();
+	myreplace();
+	copy_text();
+}
+
+function regHistory() {
+	var myReg = "/" + $('#mybefor').val().replace(/\\/g,"%5C").replace(/\//g,"%2F") + "/" + $('#myafter').val().replace(/\\/g,"%5C").replace(/\//g,"%2F") + "/" + $('#mysw').val();
+	if (myRegRireki[myRegRireki.length - 1] !== myReg) {
+		myRegRireki.push(myReg); //変換の組み合わせを記憶
+		MyReghistoryNo = myRegRireki.length;
+		showRegHistory();
+	}
+}
+function myreplace(){
+//  置換処理
+	if (myRireki[myRireki.length - 1] !== $('#upper').val())
+ 		myRireki.push($('#upper').val()); //変換前の値を記憶
+//  正規表現に変換
+	var mybefor = new RegExp($('#mybefor').val(),$('#mysw').val());
+//  置換文字の特殊文字のエスケープを解除
+	var myafter = $('#myafter').val().replace(/\\n/g, "\n")
+								.replace(/\\t/g, "\t")
+								.replace(/\\r/g, "\r");
+	$('#upper').val($('#upper').val().replace(mybefor,myafter));
+//履歴処理
+	if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
+		myRireki.push($('#upper').val()); //変換後の値を記憶
+		MyhistoryNo = myRireki.length;
+		showHistory();
+	}
+	regHistory();
+}
+
+function myGrep(){
+	//view-source:http://www.cityjp.com/javascript/programmer/text31.html
+	var TextS = $('#upper').val().replace(/\r\n/g,"\n").replace(/\r/g,"\n").split("\n");
+	var NextTextS = [];
+	var mycount = 0;
+	if ($('#mybefor').val() === "") return;
+//  置換処理
+	if (myRireki[myRireki.length - 1] !== $('#upper').val())
+ 	myRireki.push($('#upper').val()); //変換前の値を記憶
+	var FindREG = new RegExp($('#mybefor').val(),$('#mysw').val());
+	for (var i in TextS){
+		if (TextS[i].match(FindREG)){
+			NextTextS.push(TextS[i]);
+			mycount++;
+		}
+	}
+	$('#upper').val(NextTextS.join("\n"));
+	if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
+		myRireki.push($('#upper').val()); //変換後の値を記憶
+		MyhistoryNo = myRireki.length;
+		showHistory();
+	}
+	regHistory();
+}
+
+$(document).ready(function(){
+//  置換サンプルを検索文字、置換文字に代入
+  var regsum;
+	$('#sel').bind('change', function() {
+		var source = $('#sel').val().replace(/\\\\/g,"%5C").replace(/\\\//g,"%2F");
+		regsum = source.split("/");  //セパレータは/。
+    	$('#mybefor').val(regsum[1].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
+    	$('#myafter').val(regsum[2].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
+    	$('#mysw').val(regsum[3]);
+		$('#doReplace').focus();
+
+	});
+});
+
+$(document).ready(function(){
+//  プロダウンメニューで変換する
+	$('#henkan').on('change', function() {
+		if (myRireki[myRireki.length - 1] !== $('#upper').val())
+	 		myRireki.push($('#upper').val()); //変換前の値を記憶
+		var cmd = $('#henkan').val();
+		setTimeout(function() { // iosで動かないため、イベント終了を待って再設定する。
+			if (cmd == "zentohan") $('#upper').val($('#upper').val().toOneByteAlphaNumeric());
+			if (cmd == "hantozen") $('#upper').val($('#upper').val().toTwoByteAlphaNumeric());
+			if (cmd == "kanahantozen") $('#upper').val(toZenkaku($('#upper').val()));
+			if (cmd == "kanazentohan") $('#upper').val(toHankaku($('#upper').val()));
+			if (cmd == "delHtmlTags") $('#upper').val(delHtmlTags($('#upper').val()));
+			if (cmd == "LineReverce") $('#upper').val(LineReverce($('#upper').val()));
+			if (cmd == "StrRev") $('#upper').val(StrRev($('#upper').val()));
+			if (cmd == "toArb") $('#upper').val(KanConv($('#upper').val()));
+			if (cmd == "katatohira") $('#upper').val(katatohira($('#upper').val()));
+			if (cmd == "hiratokata") $('#upper').val(hiratokata($('#upper').val()));
+			$("select#henkan").val("0");
+			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
+				myRireki.push($('#upper').val()); //変換後の値を記憶
+				MyhistoryNo = myRireki.length;
+				showHistory();
+			}
+		}, 0);
+	});
+});
+
+$(document).ready(function(){
+//  プロダウンメニューで変換する
+	$('#mysort').on('change', function() {
+		if (myRireki[myRireki.length - 1] !== $('#upper').val())
+	 		myRireki.push($('#upper').val()); //変換前の値を記憶
+		var cmd = $('#mysort').val();
+		setTimeout(function() { // iosで動かないため、イベント終了を待って再設定する。
+			if (cmd == "goi") $('#upper').val(goi($('#upper').val()));
+			if (cmd == "SortByNumLarger") $('#upper').val(SortByNumLarger($('#upper').val()));
+			if (cmd == "SortByNumSmaller") $('#upper').val(SortByNumSmaller($('#upper').val()));
+			if (cmd == "SortByLarger") $('#upper').val(SortByLarger($('#upper').val()));
+			if (cmd == "SortBySmaller") $('#upper').val(SortBySmaller($('#upper').val()));
+			if (cmd == "myUniq") $('#upper').val(myUniq($('#upper').val()));
+			if (cmd == "xtr") $('#upper').val(xtr($('#upper').val()));
+			if (cmd == "fTxt") $('#upper').val(fTxt($('#upper').val()));
+			$("select#mysort").val("0");
+			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
+				myRireki.push($('#upper').val()); //変換後の値を記憶
+				MyhistoryNo = myRireki.length;
+				showHistory();
+			}
+		}, 0);
+	});
+});
+	
+// 全角英数字文字列を半角文字列に変換する
+//http://logicalerror.seesaa.net/article/275434211.html
+String.prototype.toOneByteAlphaNumeric = function(){
+    return this.replace(/[！-～]/g, function(s) {
+        return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+    })
+	.replace(/￥/g,"\\");
+};
+ 
+// 半角英数字文字列を全角文字列に変換する
+String.prototype.toTwoByteAlphaNumeric = function(){
+    return this.replace(/[\!-\~]/g, function(s) {
+        return String.fromCharCode(s.charCodeAt(0) + 0xFEE0);
+    })
+	.replace(/＼/g,"￥");
+};
+
+function toZenkaku(motoText){
+	//http://www.openspc2.org/reibun/javascript/business/003/
+	var	txt = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｧｨｩｪｫｬｭｮｯ､｡ｰ｢｣ﾞﾟ";
+	var	zen = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォャュョッ、。ー「」";
+		zen+= "　　　　　ガギグゲゴザジズゼゾダヂヅデド　　　　　バビブベボ　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　";
+		zen+= "　　　　　　　　　　　　　　　　　　　　　　　　　パピプペポ　　　　　　　　　　　　　　　　　　　　　　　　　　　　　";
+	var	str = "";
+	for (var i=0; i<motoText.length; i++){
+		var	c = motoText.charAt(i);
+		var	cnext = motoText.charAt(i+1);
+		var	n = txt.indexOf(c,0);
+		var nnext = txt.indexOf(cnext,0);
+		if (n >= 0){
+			if (nnext == 60){
+				c = zen.charAt(n+60);
+				i++;
+			}else if (nnext == 61){
+				c = zen.charAt(n+120);
+				i++;
+			}else{
+				c = zen.charAt(n);
+			}
+		}
+		if ((n != 60) && (n != 61)){
+			str += c;
+		}
+	}
+	return str;
+}
+
+function toHankaku(motoText){
+	//http://www.openspc2.org/reibun/javascript/business/004/
+	var	han = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｧｨｩｪｫｬｭｮｯ､｡ｰ｢｣";
+	var	txt = "アイウエオカキクケコサシスセソタチツテトナニヌネノ";
+		txt+= "ハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォャュョッ、。ー「」";
+	var	str = "";
+	var strorg = motoText;
+ 	strorg = strorg
+	.replace(/ガ/g,"ｶﾞ").replace(/ギ/g,"ｷﾞ").replace(/グ/g,"ｸﾞ").replace(/ゲ/g,"ｹﾞ").replace(/ゴ/g,"ｺﾞ")
+	.replace(/ザ/g,"ｻﾞ").replace(/ジ/g,"ｼﾞ").replace(/ズ/g,"ｽﾞ").replace(/ゼ/g,"ｾﾞ").replace(/ゾ/g,"ｿﾞ")
+	.replace(/ダ/g,"ﾀﾞ").replace(/ヂ/g,"ﾁﾞ").replace(/ヅ/g,"ﾂﾞ").replace(/デ/g,"ﾃﾞ").replace(/ド/g,"ﾄﾞ")
+	.replace(/バ/g,"ﾊﾞ").replace(/パ/g,"ﾊﾟ").replace(/ビ/g,"ﾋﾞ").replace(/ピ/g,"ﾋﾟ").replace(/ブ/g,"ﾌﾞ")
+	.replace(/プ/g,"ﾌﾟ").replace(/ベ/g,"ﾍﾞ").replace(/ペ/g,"ﾍﾟ").replace(/ボ/g,"ﾎﾞ").replace(/ポ/g,"ﾎﾟ")
+	.replace(/ヴ/g,"ｳﾞ").replace(/゜/g,"ﾟ").replace(/゛/g,"ﾞ");
+	for (var i=0; i<strorg.length; i++)
+	{
+		var	c = strorg.charAt(i);
+		var	n = txt.indexOf(c,0);
+		if (n >= 0) c = han.charAt(n);
+		str += c;
+	}
+	return str;
+}
+
+function ShowStrLength() {
+	//文字数と行数を数える
+	var mojisuu, num, gyosuu, avgMoji;
+	mojisuu = $('#upper').val().replace(/\s/g,"").replace(/　/g,"").length;
+	num = $('#upper').val().match(/\r\n|\n/g);
+	if(num !== null){gyosuu = num.length +1; }
+　　　else{gyosuu = 1;}
+	avgMoji = mojisuu / gyosuu;
+	alert(mojisuu.toLocaleString() + "字(スペース、改行カウントせず)\n" + gyosuu.toLocaleString() + "行\n" + Math.round(avgMoji).toLocaleString() + "字/行" );
+}
+
+function delHtmlTags(str) {
+	return   str.replace(/<(no)?script(.|\s)*?<\/(no)?script>/gi, '')
+				.replace(/<style(.|\s)*?<\/(no)?style>/gi, '')
+				.replace(/<.*?>/g, '');
+}
+
+function goi(str) {
+	var	aaa = str.replace(/[^亜-龠ーァ-ヶ0-9０-９A-zＡ-ｚ\-－・]/g, "\f").split("\f");
+	var	goix = {};
+	var bbb = "";
+	for (var i=0; i < aaa.length ; i++){
+		if (aaa[i] !== "") {
+			if (goix[aaa[i]] > 0) {
+				goix[aaa[i]]++;
+			}
+			else {
+				goix[aaa[i]] =1;
+			}
+		}
+	}
+	/* ソートする準備 新配列作成*/
+	var aSIN = [];
+	for( i in goix ){
+		aSIN.push({key:i,val:goix[i]});
+	}
+	/* バリュー ソート (値が大きい順) */
+	aSIN.sort(largeVal);
+	function largeVal(a,b){ return (a.val < b.val) ? 1 : -1 ; }
+
+	for (i=0; i < aSIN.length ; i++) {
+		bbb = bbb + aSIN[i].val.toLocaleString() + '\t' + aSIN[i].key + '\n';
+	}
+	return bbb;
+}
+
+function SortByNumLarger(str) {
+   // textareaの内容を改行で分割して配列に格納
+   var targetArray = str.replace(/\n+$/,"").split("\n");
+   // 数値の大きい順にソート
+   var sortedArray = targetArray.sort( function(a,b) {
+      return Number(b) - Number(a);
+   } );
+   // ソート結果を書き戻す
+   return sortedArray.join("\n");
+}
+
+function SortByNumSmaller(str) {
+   // textareaの内容を改行で分割して配列に格納
+   var targetArray = str.replace(/\n+$/,"").split("\n");
+   // 数値の小さい順にソート
+   var sortedArray = targetArray.sort( function(a,b) {
+      return Number(a) - Number(b);
+   } );
+   // ソート結果を書き戻す
+   return sortedArray.join("\n");
+}
+
+function SortByLarger(str) {
+   // textareaの内容を改行で分割して配列に格納
+   var targetArray = str.replace(/\n+$/,"").split("\n");
+   // 文字の大きい順にソート
+   var sortedArray = targetArray.sort().reverse();
+   // ソート結果を書き戻す
+   return sortedArray.join("\n");
+}
+
+function SortBySmaller(str) {
+   // textareaの内容を改行で分割して配列に格納
+   var targetArray = str.replace(/\n+$/,"").split("\n");
+   // 文字の小さい順にソート
+   var sortedArray = targetArray.sort();
+   // ソート結果を書き戻す
+   return sortedArray.join("\n");
+}
+
+function LineReverce(str) {
+   // textareaの内容を改行で分割して配列に格納,逆順にして、連結して書き出す
+   return str.split("\n").reverse().join("\n");
+}
+
+function StrRev(str) {
+	//文字を行単位で反転させる
+	var sortedArray = [];
+	// textareaの内容を改行で分割して配列に格納
+	var targetArray = str.split("\n");
+	// 文字の大きい順にソート
+	for (var i=0; i < targetArray.length ; i++) {
+		sortedArray[i] = targetArray[i].split("").reverse().join("");
+	}
+	// ソート結果を書き戻す
+	return sortedArray.join("\n");
+}
+
+/********************************************************
+ *  漢数字をアラビア数字にする
+ *  Copyright (c) 2005 AOK. All Rights Reserved.
+ ********************************************************/
+
+var suuji = "〇一二三四五六七八九零壱弐参肆伍陸漆捌玖零壹貳參四五六柒八九";
+var keta1 = "十百千拾佰仟十陌阡";
+var keta2 = "万億兆萬";
+
+function toArb(kanji) {
+  var i, r, a, b = 0, c, d, t = 0, f = false;
+  for (i = 0; i < kanji.length; i++) {
+    c = kanji.charAt(i);
+    if ((r = suuji.indexOf(c)) != -1) {
+      if (f === false) {
+        b += r % 10;
+        f = true;
+      } else {
+        b = b * 10 + r % 10;
+      }
+    } else if ((r = keta1.indexOf(c)) != -1) {
+      t += b;
+      d = t % 10;
+      a = (d === 0 ? 1 : d) * Math.pow(10, r % 3 + 1);
+      t += a - d;
+      b = 0;
+      f = false;
+    } else if ((r = keta2.indexOf(c)) != -1) {
+      t += b;
+      d = t % 10000;
+      a = d * Math.pow(10000, r % 3 + 1);
+      t += a - d;
+      b = 0;
+      f = false;
+    } else {
+      window.alert("解析できませんでした：" + kanji);
+      return kanji;
+    }
+  }
+  return t + b;
+}
+
+function formatComma(val) {
+  var s = "" + val;
+  if (s.length > 3) {
+    var r = ((r = s.length % 3) === 0 ? 3 : r);
+    var d = s.substring(r);
+    s = s.substr(0, r) + d.replace(/(\d{3})/g, ",$1");
+  }
+  return s;
+}
+
+function KanConv(str) {
+	//http://www.benricho.org/moji_conv/07.html
+	var reg = new RegExp("([" + suuji + keta1 + "][" + suuji + keta1 + keta2 + "]*)", "g");
+	var src = str;
+	src = src.replace(/廿/g, "二十")
+			.replace(/卅/g, "三十")
+			.replace(/丗/g, "三十");
+	return src.replace(reg,
+	function ($0) {
+		return formatComma(toArb($0));
+	});
+}
+
+function hiratokata (TargetString){
+	return TargetString.replace(/[ぁ-ん]/g, function(s) {
+	   return String.fromCharCode(s.charCodeAt(0) + 0x60);
+	});
+}
+
+function katatohira (TargetString){
+	return TargetString.replace(/[ァ-ン]/g, function(s) {
+	   return String.fromCharCode(s.charCodeAt(0) - 0x60);
+	});
+}
+
+function myUniq(){
+	//http://www.cityjp.com/javascript/programmer/text33.html
+	if ($('#upper').val() === '') return;
+	var Text1S = $('#upper').val().replace(/\r\n/g,"\n").replace(/\r/g,"\n").replace(/\n+/g,"\n").replace(/^\n|\n$/g,"").split("\n").sort();
+	var Text2S = [];
+	var TextTemp = '';
+	for (var i in Text1S){
+		if (TextTemp != Text1S[i]) Text2S.push(Text1S[i]);
+		TextTemp = Text1S[i];
+	}
+	return Text2S.join("\n");
+}
+
+function xtr (str){
+	//全角35文字で折り返し。禁則有り。
+	var myChar = [], countNo = 0 , myResult = "", orikaeshi = 70;
+	// 入力ダイアログを表示 
+	var userNum = window.prompt("折り返し文字数を入力してください", "35");
+	userNum = userNum.toOneByteAlphaNumeric();
+	if(userNum > 0) orikaeshi = userNum * 2;
+	else alert("指定文字数が認識できなかったため、デフォルトの70文字で折り返します。");
+	myChar = str.split("");
+	for (var i = 0; i < myChar.length; i++) {
+		(myChar[i].match(/[ -~｡-ﾟ]/))? countNo++ : countNo = countNo + 2;
+		(myChar[i].match(/\n/))?       countNo =0: false;
+		myResult = myResult + myChar[i];
+		if (myChar.length !== i + 1) { //末端文字以外だったら
+			if (countNo >= orikaeshi - 2 && myChar[i+1].match(/[「『（［〈《〔【\(\[]・/)) { //行頭禁則文字
+				myResult = myResult + "\n";
+				countNo = 0;
+			}
+			if (countNo >= orikaeshi && myChar[i+1].match(/[^、。，。,.．）)」』》］\]､｡｣\s]/)) { //行末禁則文字
+				myResult = myResult + "\n";
+				countNo = 0;
+			}
+		}
+	}
+	return myResult;
+}
+
+function fTxt (str){
+	//段落内の改行を削除する。
+	var myChar = [], countNo = 0 , myResult = "";
+	myChar = str.split("");
+	for (var i = 0; i < myChar.length; i ++) {
+		if ( i > 1 && myChar[i].match(/\n/)) {
+			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/　 [「『（［〈《〔【\(\[・※]/)) {
+//			if (myChar[i-1].match(/。/)) {
+//			if (myChar[i+1].match(/　/)) {
+				myResult = myResult + myChar[i];
+			}
+		}
+		else {
+			myResult = myResult + myChar[i];
+		}
+	}
+	return myResult;
+}
+
+$(window).bind("resize ready", function(event){
+	adjustHight();
+});
+
+function adjustHight () {
+	//テキストボックスの高さをwindowsサイズに合わせてリサイズ
+	//http://daruyanagi.jp/entry/2014/11/15/160504
+	$('#upper').height(
+		$('#upper').height()  + 
+		$(window).height() - 
+		$(document.body).height() - 40
+	);
+}
+
+window.onload = function() {
+	//起動時にテキストボックスをリサイズ
+	adjustHight();
+	firstscript();
+}
+	
+</script>
+<style type="text/css">
+.textarea {
+	font-family: "ＭＳ ゴシック", "MS Gothic", "Osaka－等幅", Osaka-mono, monospace;
+	width: 99%;
+	overflow:auto;
+}s
+</style>
+</head>
+
+<body>
+<p>
+    <input type="button" value="clipboardからpaste(IE)" onclick="copy_clipboard()">
+    <input type="button" value="全選択" onclick="sel_text()">
+    <input type="button" value ="clipboardへcopy(IE,Chrome)" onclick="copy_text()">
+    <input type="button" value="一撃(IE)" title="clipboard dataに対して置換を実行し、clipboardに書き戻します。" onclick="oneshot()">
+	<label>置換表現履歴</label>
+    <input type="button" class="btn_reg_history" id="myfirstbtn" value="<<">
+    <input type="button" class="btn_reg_history" id="mybeforbtn" value="<">
+    <input type="button" class="btn_reg_history" id="myafterbtn" value=">">
+    <input type="button" class="btn_reg_history" id="mylastbtn" value=">>">
+	<span id="s_reg_rireki"></span>
+<br />
+<form id="form1" name="form1" method="post" action="">
+    <SELECT name="henkan" id="henkan">
+        <OPTION value="0">文字種変換</OPTION>
+        <OPTION value="zentohan">全角を半角に</OPTION>
+        <OPTION value="hantozen">半角を全角に</OPTION>
+        <OPTION value="kanahantozen">ｶﾅをカナに</OPTION>
+        <OPTION value="kanazentohan">カナをｶﾅに</OPTION>
+        <OPTION value="hiratokata">かなをカナに</OPTION>
+        <OPTION value="katatohira">カナをかなに</OPTION>
+        <OPTION value="delHtmlTags">HTMLタグ全削除</OPTION>
+        <OPTION value="LineReverce">行を逆順に</OPTION>
+        <OPTION value="StrRev">文字を反転</OPTION>
+        <OPTION value="toArb">漢数字をアラビア数字に</OPTION>
+    </SELECT>
+    <SELECT name="mysort" id="mysort">
+        <OPTION value="0">ソート</OPTION>
+        <OPTION value="SortByNumLarger">数値ソート（降順）</OPTION>
+        <OPTION value="SortByNumSmaller">数値ソート（昇順）</OPTION>
+        <OPTION value="SortByLarger">文字ソート（降順）</OPTION>
+        <OPTION value="SortBySmaller">文字ソート（昇順）</OPTION>
+        <OPTION value="myUniq">重複行削除</OPTION>
+        <OPTION value="goi">単語出現回数</OPTION>
+        <OPTION value="xtr">指定文字数で改行</OPTION>
+        <OPTION value="fTxt">段落内改行削除</OPTION>
+    </SELECT>
+    <input type="button" value="文字数" onclick="ShowStrLength()">
+  <SELECT name="sample" id="sel">
+    <OPTION value="">サンプル正規表現</OPTION>
+        <OPTION value="/^\s*\n//gm">空行削除</OPTION>
+        <OPTION value="/^.*/> $&/gm">行頭に引用記号</OPTION>
+        <option value="/^.*/\/\/ $&/gm">行頭に//付加</option>
+        <option value="/[\s　]//g">空白削除</option>
+        <OPTION value="/^[^　[「『（［〈《〔【\(\[・※]/　$&/gm">行頭に空白追加</OPTION>
+        <option value="/^> *//gm">行頭の引用記号削除</option>
+        <OPTION value="/(\d)(?=(\d\d\d)+(?!\d))/$1,/g">数字3桁区切り</OPTION>
+        <OPTION value="/,([^0-9])/、$1/g">桁区切りの,以外を、に変換</OPTION>
+        <OPTION value="/,/\t/g">カンマ区切り→タブ区切り</OPTION>
+        <OPTION value="/([^\s　]+)([\s　]+)([^\s　]+)/$3$2$1/gm">単語ペア入替</OPTION>
+        <OPTION value="/Java(?!Script)/c#/gm">否定先読み</OPTION>
+        <OPTION value="/下(?=さい)/くだ/gm">肯定先読み</OPTION>
+        <OPTION value="/([^。])\n/$1/gm">「。」後以外の改行削除</OPTION>
+        <OPTION value="/\n([^　\n])/$1/g">「　」前以外の改行削除</OPTION>
+        <OPTION value="/.{35}[、。，。,.．）)」]*/$&\n/gm">35文字で改行・禁則有り</OPTION>
+        <OPTION value="/<.*?>//g">htmlタグ削除</OPTION>
+        <OPTION value="/\\\\/￥/g">￥を全角に</OPTION>
+    </SELECT>
+    <input name="myreset" type="reset" />
+    </p>
+    <p>
+    <label for="mybefor">検索</label>
+    <input name="mybefor" type="text" size="32" id="mybefor" title="正規表現可"/>
+    <input type="button" value="grep" onclick="myGrep()"  title="検索文字列でgrep。スイッチも使います。">
+    <label for="myafter">置換</label> 
+    <input name="myafter" type="text" size="32" id="myafter"  title="正規表現可"/>
+    <label for="mysw">
+      <input type="button" id="doReplace" value="置換" onclick="myreplace()" style="WIDTH: 80px" />
+      <br />
+      スイッチ</label>
+    <input name="mysw" type="text" size="3" id="mysw" value="gm"  title="g;複数回、m;行単位、i;大文字小文字同一視"/>
+    <label>置換対象履歴</label>
+    <input type="button" class="btn_history" id="myfirstbtn" value="<<先頭">
+    <input type="button" class="btn_history" id="mybeforbtn" value="<前へ">
+    <input type="button" class="btn_history" id="myafterbtn" value="後へ>">
+    <input type="button" class="btn_history" id="mylastbtn" value="末尾>>">
+	<span id="s_rireki">履歴無し</span>
+  </p>
+    <textarea name="upper" cols="100" rows="25" class="textarea" id="upper"></textarea>
+</form>
+<p><a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a><br />
+データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
+  Copyright &copy; 2015 Makoto Tomo ver.0.9.9 2015-05-22更新</p>
+</body>
+</html>
