@@ -6,7 +6,7 @@
 <meta name="author" content="Makoto Tomo" />
 <meta name="keywords" content="clipsedweb, javascript, jquery, replace, regExp, 置換, 正規表現" />
 <meta name="description" content="正規表現に対応した置換webサービス。windows soft clipsed の web版。" />
-<meta name="description" content="version 0.9.9 2015/05/22" />
+<meta name="description" content="version 1.0.1 2016/05/01" />
 <title>clipsedWeb</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script type="text/javascript">
@@ -65,6 +65,13 @@ $(document).on('click', '.btn_reg_history', function(event){
 	$('#mybefor').val(regsam[1].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
 	$('#myafter').val(regsam[2].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
 	$('#mysw').val(regsam[3]);
+    if (regsam[4] == "true") {
+        $('#mygrepsw').prop("checked" , true);
+    }
+    else {
+        $('#mygrepsw').prop("checked" , false);        
+    }
+    
 	showRegHistory();
 });
 
@@ -92,7 +99,7 @@ function oneshot() {
 }
 
 function regHistory() {
-	var myReg = "/" + $('#mybefor').val().replace(/\\/g,"%5C").replace(/\//g,"%2F") + "/" + $('#myafter').val().replace(/\\/g,"%5C").replace(/\//g,"%2F") + "/" + $('#mysw').val();
+	var myReg = "/" + $('#mybefor').val().replace(/\\/g,"%5C").replace(/\//g,"%2F") + "/" + $('#myafter').val().replace(/\\/g,"%5C").replace(/\//g,"%2F") + "/" + $('#mysw').val() + "/" + $("#mygrepsw").prop('checked');
 	if (myRegRireki[myRegRireki.length - 1] !== myReg) {
 		myRegRireki.push(myReg); //変換の組み合わせを記憶
 		MyReghistoryNo = myRegRireki.length;
@@ -129,12 +136,25 @@ function myGrep(){
 	if (myRireki[myRireki.length - 1] !== $('#upper').val())
  	myRireki.push($('#upper').val()); //変換前の値を記憶
 	var FindREG = new RegExp($('#mybefor').val(),$('#mysw').val());
-	for (var i in TextS){
-		if (TextS[i].match(FindREG)){
-			NextTextS.push(TextS[i]);
-			mycount++;
-		}
-	}
+    if ($("#mygrepsw").prop('checked')) {
+    // grepのフラグ-vのチェックが付いていたら"反転""
+        for (var i in TextS){
+            if (TextS[i].match(FindREG) == null){ // 一致しなかったら出力
+                NextTextS.push(TextS[i]);
+                mycount++;
+            }
+        }        
+    }
+    else {
+    // grepのフラグ-vのチェックが付いていなかったら一致行
+        for (var i in TextS){
+            if (TextS[i].match(FindREG)){   // 一致行を出力
+                NextTextS.push(TextS[i]);
+                mycount++;
+            }
+        }        
+    }
+
 	$('#upper').val(NextTextS.join("\n"));
 	if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 		myRireki.push($('#upper').val()); //変換後の値を記憶
@@ -165,7 +185,9 @@ $(document).ready(function(){
 	 		myRireki.push($('#upper').val()); //変換前の値を記憶
 		var cmd = $('#henkan').val();
 		setTimeout(function() { // iosで動かないため、イベント終了を待って再設定する。
-			if (cmd == "zentohan") $('#upper').val($('#upper').val().toOneByteAlphaNumeric());
+			if (cmd == "toUpper") $('#upper').val(toUpper($('#upper').val()));
+			if (cmd == "toLower") $('#upper').val(toLower($('#upper').val()));
+            if (cmd == "zentohan") $('#upper').val($('#upper').val().toOneByteAlphaNumeric());
 			if (cmd == "hantozen") $('#upper').val($('#upper').val().toTwoByteAlphaNumeric());
 			if (cmd == "kanahantozen") $('#upper').val(toZenkaku($('#upper').val()));
 			if (cmd == "kanazentohan") $('#upper').val(toHankaku($('#upper').val()));
@@ -209,7 +231,14 @@ $(document).ready(function(){
 		}, 0);
 	});
 });
-	
+
+$(document).ready(function(){
+//  サンプル正規表現を選択後、元に戻す
+	$('#sel').on('change', function() {
+			$("#sel").val("0");
+	});
+});
+
 // 全角英数字文字列を半角文字列に変換する
 //http://logicalerror.seesaa.net/article/275434211.html
 String.prototype.toOneByteAlphaNumeric = function(){
@@ -540,7 +569,17 @@ window.onload = function() {
 	adjustHight();
 	firstscript();
 }
-	
+
+function toUpper(str) {
+// アルファベットを大文字に
+    return str.toUpperCase();;
+}
+
+function toLower(str) {
+// アルファベットを小文字に
+    return str.toLowerCase();;
+}
+
 </script>
 <style type="text/css">
 .textarea {
@@ -553,6 +592,7 @@ window.onload = function() {
 
 <body>
 <p>
+<form id="form1" name="form1" method="post" action="">
     <input type="button" value="clipboardからpaste(IE)" onclick="copy_clipboard()">
     <input type="button" value ="clipboardへcopy" onclick="copy_text()">
     <input type="button" value="一撃(IE)" title="clipboard dataに対して置換を実行し、clipboardに書き戻します。" onclick="oneshot()">
@@ -561,11 +601,11 @@ window.onload = function() {
     <input type="button" class="btn_reg_history" id="mybeforbtn" value="<">
     <input type="button" class="btn_reg_history" id="myafterbtn" value=">">
     <input type="button" class="btn_reg_history" id="mylastbtn" value=">>">
-	<span id="s_reg_rireki"></span>
-<br />
-<form id="form1" name="form1" method="post" action="">
+	<span id="s_reg_rireki"></span><br />
     <SELECT name="henkan" id="henkan">
         <OPTION value="0">文字種変換</OPTION>
+        <OPTION value="toUpper">大文字に(abc->ABC)</OPTION>
+        <OPTION value="toLower">小文字に(ABC->abc)</OPTION>
         <OPTION value="zentohan">全角を半角に</OPTION>
         <OPTION value="hantozen">半角を全角に</OPTION>
         <OPTION value="kanahantozen">ｶﾅをカナに</OPTION>
@@ -590,7 +630,7 @@ window.onload = function() {
     </SELECT>
     <input type="button" value="文字数" onclick="ShowStrLength()">
   <SELECT name="sample" id="sel">
-    <OPTION value="">サンプル正規表現</OPTION>
+    <OPTION value="0">サンプル正規表現</OPTION>
         <OPTION value="/^\s*\n//gm">空行削除</OPTION>
         <OPTION value="/^.*/> $&/gm">行頭に引用記号</OPTION>
         <option value="/^.*/\/\/ $&/gm">行頭に//付加</option>
@@ -609,30 +649,29 @@ window.onload = function() {
         <OPTION value="/<.*?>//g">htmlタグ削除</OPTION>
         <OPTION value="/\\\\/￥/g">￥を全角に</OPTION>
     </SELECT>
-    <input name="myreset" type="reset" />
-    </p>
-    <p>
+    <input name="myreset" type="reset" /><br />
     <label for="mybefor">検索</label>
     <input name="mybefor" type="text" size="32" id="mybefor" title="正規表現可"/>
     <input type="button" value="grep" onclick="myGrep()"  title="検索文字列でgrep。スイッチも使います。">
     <label for="myafter">置換</label> 
     <input name="myafter" type="text" size="32" id="myafter"  title="正規表現可"/>
-    <label for="mysw">
-      <input type="button" id="doReplace" value="置換" onclick="myreplace()" style="WIDTH: 80px" />
-      <br />
-      スイッチ</label>
+    <input type="button" id="doReplace" value="置換" onclick="myreplace()" style="WIDTH: 80px" /><br />
+    <label for="mysw">フラグ</label>
     <input name="mysw" type="text" size="3" id="mysw" value="gm"  title="g;複数回、m;行単位、i;大文字小文字同一視"/>
+    <input name="mygrepsw" type="checkbox" id="mygrepsw" value=""  title="grepで非一致行を表示します"/>
+    <label for="mygrepsw"  title="grepで非一致行を表示します">-v</label>
     <label>置換対象履歴</label>
     <input type="button" class="btn_history" id="myfirstbtn" value="<<先頭">
     <input type="button" class="btn_history" id="mybeforbtn" value="<前へ">
     <input type="button" class="btn_history" id="myafterbtn" value="後へ>">
     <input type="button" class="btn_history" id="mylastbtn" value="末尾>>">
 	<span id="s_rireki">履歴無し</span>
-  </p>
+  <br /><br />
     <textarea name="upper" cols="100" rows="25" class="textarea" id="upper"></textarea>
 </form>
-<p><a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a><br />
+<a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a>
+<a href="http://www.cityjp.com/javascript/programmer/index.html" target="new">プログラム支援スクリプト(別サイト)</a><br />
 データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
-  Copyright &copy; 2015 Makoto Tomo ver.0.9.9 2015-05-22更新</p>
+  Copyright &copy; 2015 Makoto Tomo ver.1.0.1 2016-05-01更新</p>
 </body>
 </html>
