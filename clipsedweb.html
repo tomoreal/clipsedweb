@@ -514,7 +514,9 @@ function xtr (str){
 	else alert("指定文字数が認識できなかったため、デフォルトの70文字で折り返します。");
 	myChar = str.split("");
 	for (var i = 0; i < myChar.length; i++) {
-		(myChar[i].match(/[ -~｡-ﾟ]/))? countNo++ : countNo = countNo + 2;
+        if  (escape(myChar[i]).match(/^%u/)) escape(myChar[i]).match(/^%uFF[6-9]/) ? countNo++ : countNo = countNo +2; // 半角カナは1、全角は2とカウント    
+        else countNo++; //半角カウント
+//		(myChar[i].match(/[ -~｡-ﾟ]/))? countNo++ : countNo = countNo + 2;
 		(myChar[i].match(/\n/))?       countNo =0: false;
 		myResult = myResult + myChar[i];
 		if (myChar.length !== i + 1) { //末端文字以外だったら
