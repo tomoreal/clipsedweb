@@ -8,7 +8,8 @@
 <meta name="description" content="正規表現に対応した置換webサービス。windows soft clipsed の web版。" />
 <meta name="description" content="version 1.0.1 2016/05/01" />
 <title>clipsedWeb</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script-->
 <script type="text/javascript">
 var myRireki = [], MyhistoryNo = 0; myRegRireki = [], MyRegHistoryNo = 0;
 
@@ -104,6 +105,9 @@ function regHistory() {
 		myRegRireki.push(myReg); //変換の組み合わせを記憶
 		MyReghistoryNo = myRegRireki.length;
 		showRegHistory();
+		// クッキーにも記録  //sample
+		//$.cookie( "clipsedwebRireki" , myReg );
+		//window.alert($.cookie( "clipsedwebRireki")); //for debug
 	}
 }
 function myreplace(){
@@ -539,7 +543,7 @@ function fTxt (str){
 	myChar = str.split("");
 	for (var i = 0; i < myChar.length; i ++) {
 		if ( i > 1 && myChar[i].match(/\n/)) {
-			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/　 [「『（［〈《〔【\(\[・※]/)) {
+			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/[　 「『（［〈《〔【\(\[・※]/)) {
 //			if (myChar[i-1].match(/。/)) {
 //			if (myChar[i+1].match(/　/)) {
 				myResult = myResult + myChar[i];
@@ -588,7 +592,7 @@ function toLower(str) {
 	font-family: "ＭＳ ゴシック", "MS Gothic", "Osaka－等幅", Osaka-mono, monospace;
 	width: 99%;
 	overflow:auto;
-}s
+}
 </style>
 </head>
 
@@ -634,8 +638,10 @@ function toLower(str) {
   <SELECT name="sample" id="sel">
     <OPTION value="0">サンプル正規表現</OPTION>
         <OPTION value="/^\s*\n//gm">空行削除</OPTION>
-        <OPTION value="/^.*/> $&/gm">行頭に引用記号</OPTION>
-        <option value="/^.*/\/\/ $&/gm">行頭に//付加</option>
+        <OPTION value="/^/> /gm">行頭に引用記号</OPTION>
+        <option value="/^/\/\/ /gm">行頭に//付加</option>
+        <option value="/$/ </gm">行末に<を付加</option>
+        <option value="/^.*$/> $& < /gm">行頭行末に引用記号付加</option>
         <option value="/[\s　]//g">空白削除</option>
         <OPTION value="/^[^　[「『（［〈《〔【\(\[・※]/　$&/gm">行頭に空白追加</OPTION>
         <option value="/^> *//gm">行頭の引用記号削除</option>
@@ -674,6 +680,6 @@ function toLower(str) {
 <a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a>
 <a href="http://www.cityjp.com/javascript/programmer/index.html" target="new">プログラム支援スクリプト(別サイト)</a><br />
 データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
-  Copyright &copy; 2015 Makoto Tomo ver.1.0.1 2016-05-01更新</p>
+  Copyright &copy; 2015-2017 Makoto Tomo ver.1.0.2 2017-06-12更新</p>
 </body>
 </html>
