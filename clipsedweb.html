@@ -225,7 +225,7 @@ $(document).ready(function(){
 			if (cmd == "SortBySmaller") $('#upper').val(SortBySmaller($('#upper').val()));
 			if (cmd == "myUniq") $('#upper').val(myUniq($('#upper').val()));
 			if (cmd == "xtr") $('#upper').val(xtr($('#upper').val()));
-			if (cmd == "fTxt") $('#upper').val(fTxt($('#upper').val()));
+			if (cmd == "fTxt")   $('#upper').val(fTxt($('#upper').val()));
 			$("select#mysort").val("0");
 			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 				myRireki.push($('#upper').val()); //変換後の値を記憶
@@ -543,7 +543,8 @@ function fTxt (str){
 	myChar = str.split("");
 	for (var i = 0; i < myChar.length; i ++) {
 		if ( i > 1 && myChar[i].match(/\n/)) {
-			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/[　 「『（［〈《〔【\(\[・※]/)) {
+			if (myChar[i-1].match(/[。。」』》］\]｡｣]/) || myChar[i+1].match(/[　 「『（［〈《〔【\(\[・※]/)) {
+//			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/[　 「『（［〈《〔【\(\[・※]/)) {
 //			if (myChar[i-1].match(/。/)) {
 //			if (myChar[i+1].match(/　/)) {
 				myResult = myResult + myChar[i];
@@ -680,6 +681,6 @@ function toLower(str) {
 <a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a>
 <a href="http://www.cityjp.com/javascript/programmer/index.html" target="new">プログラム支援スクリプト(別サイト)</a><br />
 データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
-  Copyright &copy; 2015-2017 Makoto Tomo ver.1.0.2 2017-06-12更新</p>
+  Copyright &copy; 2015-2018 Makoto Tomo ver.1.0.3 2018-03-09更新</p>
 </body>
 </html>
