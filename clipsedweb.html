@@ -644,11 +644,12 @@ function toLower(str) {
         <OPTION value="/^[^　[「『（［〈《〔【\(\[・※]/　$&/gm">行頭に空白追加</OPTION>
         <option value="/^> *//gm">行頭の引用記号削除</option>
         <OPTION value="/(\d)(?=(\d\d\d)+(?!\d))/$1,/g">数字3桁区切り</OPTION>
-        <OPTION value="/,([^0-9])/、$1/g">桁区切りの,以外を、に変換</OPTION>
+        <OPTION value="/[,，]([^0-9０-９])/、$1/g">桁区切りの,以外を、に変換</OPTION>
         <OPTION value="/,/\t/g">カンマ区切り→タブ区切り</OPTION>
         <OPTION value="/([^\s　]+)([\s　]+)([^\s　]+)/$3$2$1/gm">単語ペア入替</OPTION>
         <OPTION value="/Java(?!Script)/c#/gm">否定先読み</OPTION>
         <OPTION value="/下(?=さい)/くだ/gm">肯定先読み</OPTION>
+        <OPTION value="/[△▲](?=[0-9])/-/gm">△を-に変換</OPTION>
         <OPTION value="/([^。])\n/$1/gm">「。」後以外の改行削除</OPTION>
         <OPTION value="/\n([^　\n])/$1/g">「　」前以外の改行削除</OPTION>
         <OPTION value="/.{35}[、。，。,.．）)」]*/$&\n/gm">35文字で改行・禁則有り</OPTION>
