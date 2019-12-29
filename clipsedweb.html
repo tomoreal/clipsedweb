@@ -50,16 +50,16 @@ function showRegHistory() {
 $(document).on('click', '.btn_reg_history', function(event){
 	// 置換文字列の履歴を表示
 	var btnid  = $(this).attr("id");
-	if (btnid == "myfirstbtn") {	//履歴先頭を表示
+	if (btnid == "myfirstbtn_r") {	//履歴先頭を表示
 		if (MyReghistoryNo >= 1) MyReghistoryNo=1;
 	}
-	else if (btnid == "mybeforbtn") {	//置換前を表示
+	else if (btnid == "mybeforbtn_r") {	//置換前を表示
 		if (MyReghistoryNo > 1) MyReghistoryNo--;
 	}
-	else if (btnid == "myafterbtn") {	//置換後を表示
+	else if (btnid == "myafterbtn_r") {	//置換後を表示
 		if (MyReghistoryNo < myRegRireki.length) MyReghistoryNo++;
 	}
-	else if (btnid == "mylastbtn") {	//履歴末端を表示
+	else if (btnid == "mylastbtn_r") {	//履歴末端を表示
 		MyReghistoryNo= myRegRireki.length;
 	}
 	var source = myRegRireki[MyReghistoryNo-1].replace(/\\\\/g,"%5C").replace(/\\\//g,"%2F");
@@ -619,10 +619,10 @@ function toLower(str) {
     <input type="button" value ="clipboardへcopy" onclick="copy_text()">
     <input type="button" value="一撃" title="clipboard dataに対して置換を実行し、clipboardに書き戻します。" onclick="oneshot()">
 	<label>置換表現履歴</label>
-    <input type="button" class="btn_reg_history" id="myfirstbtn" value="<<">
-    <input type="button" class="btn_reg_history" id="mybeforbtn" value="<">
-    <input type="button" class="btn_reg_history" id="myafterbtn" value=">">
-    <input type="button" class="btn_reg_history" id="mylastbtn" value=">>">
+    <input type="button" class="btn_reg_history" id="myfirstbtn_r" value="<<">
+    <input type="button" class="btn_reg_history" id="mybeforbtn_r" value="<">
+    <input type="button" class="btn_reg_history" id="myafterbtn_r" value=">">
+    <input type="button" class="btn_reg_history" id="mylastbtn_r" value=">>">
 	<span id="s_reg_rireki"></span><br />
     <SELECT name="henkan" id="henkan">
         <OPTION value="0">文字種変換</OPTION>
@@ -656,7 +656,7 @@ function toLower(str) {
         <OPTION value="/^\s*\n//gm">空行削除</OPTION>
         <OPTION value="/^/> /gm">行頭に引用記号</OPTION>
         <option value="/^/\/\/ /gm">行頭に//付加</option>
-        <option value="/$/ </gm">行末に<を付加</option>
+        <option value="/$/ </gm">行末に&lt;を付加</option>
         <option value="/^.*$/> $& < /gm">行頭行末に引用記号付加</option>
         <option value="/[\s　]//g">空白削除</option>
         <OPTION value="/^[^　[「『（［〈《〔【\(\[・※]/　$&/gm">行頭に空白追加</OPTION>
