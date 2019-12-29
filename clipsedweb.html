@@ -7,6 +7,7 @@
 <meta name="keywords" content="clipsedweb, javascript, jquery, replace, regExp, 置換, 正規表現" />
 <meta name="description" content="正規表現に対応した置換webサービス。windows soft clipsed の web版。" />
 <meta name="description" content="version 1.0.1 2016/05/01" />
+<link rel="icon" href="favicon.ico">
 <title>clipsedWeb</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <!--script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script-->
@@ -88,9 +89,20 @@ function copy_text(){
 	document.execCommand('copy');
 }
 function copy_clipboard(){
-	$('#upper').focus();
-	$('#upper').select();
-	document.execCommand('paste');
+	var userAgent = window.navigator.userAgent.toLowerCase();
+	if(userAgent.indexOf('trident/7') != -1 || userAgent.indexOf('msie') != -1) {
+		$('#upper').focus();
+		$('#upper').select();
+		document.execCommand('paste');
+		console.log("IE");
+	}
+	else {
+		navigator.clipboard.readText()
+			.then(function (text) {
+				upper.value = text;
+		console.log("非IE");
+			});
+	}
 }
 
 function oneshot() {
@@ -597,9 +609,9 @@ function toLower(str) {
 <body>
 <p>
 <form id="form1" name="form1" method="post" action="">
-    <input type="button" value="clipboardからpaste(IE)" onclick="copy_clipboard()">
+    <input type="button" value="clipboardからpaste" onclick="copy_clipboard()">
     <input type="button" value ="clipboardへcopy" onclick="copy_text()">
-    <input type="button" value="一撃(IE)" title="clipboard dataに対して置換を実行し、clipboardに書き戻します。" onclick="oneshot()">
+    <input type="button" value="一撃" title="clipboard dataに対して置換を実行し、clipboardに書き戻します。" onclick="oneshot()">
 	<label>置換表現履歴</label>
     <input type="button" class="btn_reg_history" id="myfirstbtn" value="<<">
     <input type="button" class="btn_reg_history" id="mybeforbtn" value="<">
@@ -679,6 +691,6 @@ function toLower(str) {
 <a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a>
 <a href="http://www.cityjp.com/javascript/programmer/index.html" target="new">プログラム支援スクリプト(別サイト)</a><br />
 データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
-  Copyright &copy; 2015-2017 Makoto Tomo ver.1.0.2 2017-06-12更新</p>
+  Copyright &copy; 2015-2019 Makoto Tomo ver.1.0.3 2019-12-29更新</p>
 </body>
 </html>
