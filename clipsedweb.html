@@ -106,9 +106,15 @@ function copy_clipboard(){
 }
 
 function oneshot() {
-	copy_clipboard();
-	myreplace();
-	copy_text();
+	setTimeout(function() {
+		copy_clipboard();
+	setTimeout(function() {
+		myreplace();
+	setTimeout(function() {
+		copy_text();
+	}, 0);
+	}, 0);
+	}, 0);
 }
 
 function regHistory() {
