@@ -658,7 +658,7 @@ function toLower(str) {
         <option value="/^/\/\/ /gm">行頭に//付加</option>
         <option value="/$/ </gm">行末に&lt;を付加</option>
         <option value="/^.*$/> $& < /gm">行頭行末に引用記号付加</option>
-        <option value="/[\s　]//g">空白削除</option>
+        <option value="/[ 　\t]//g">改行以外の空白削除</option>
         <OPTION value="/^[^　[「『（［〈《〔【\(\[・※]/　$&/gm">行頭に空白追加</OPTION>
         <option value="/^> *//gm">行頭の引用記号削除</option>
         <OPTION value="/(\d)(?=(\d\d\d)+(?!\d))/$1,/g">数字3桁区切り</OPTION>
