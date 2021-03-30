@@ -15,6 +15,11 @@
 var myRireki = [], MyhistoryNo = 0; myRegRireki = [], MyRegHistoryNo = 0;
 
 function firstscript() {
+	$('#mybefor').focus();
+}
+
+function reset_form() {
+	document.form1.reset();
 	$('#upper').focus();
 }
 
@@ -590,6 +595,7 @@ window.onload = function() {
 	//起動時にテキストボックスをリサイズ
 	adjustHight();
 	firstscript();
+	copy_clipboard();
 }
 
 function toUpper(str) {
@@ -674,7 +680,7 @@ function toLower(str) {
         <OPTION value="/<.*?>//g">htmlタグ削除</OPTION>
         <OPTION value="/\\\\/￥/g">￥を全角に</OPTION>
     </SELECT>
-    <input name="myreset" type="reset" /><br />
+    <button type="button" onclick="reset_form()">リセット</button><br />
     <label for="mybefor">検索</label>
     <input name="mybefor" type="text" size="32" id="mybefor" title="正規表現可"/>
     <input type="button" value="grep" onclick="myGrep()"  title="検索文字列でgrep。スイッチも使います。">
@@ -697,6 +703,6 @@ function toLower(str) {
 <a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a>
 <a href="http://www.cityjp.com/javascript/programmer/index.html" target="new">プログラム支援スクリプト(別サイト)</a><br />
 データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
-  Copyright &copy; 2015-2019 Makoto Tomo ver.1.0.3 2019-12-29更新</p>
+  Copyright &copy; 2015-2021 Makoto Tomo ver.1.0.5 2021-3-30更新</p>
 </body>
 </html>
