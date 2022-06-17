@@ -354,7 +354,7 @@ function delHtmlTags(str) {
 }
 
 function goi(str) {
-	var	aaa = str.replace(/[^亜-龠ーァ-ヶ0-9０-９A-zＡ-ｚ\-－・]/g, "\f").split("\f");
+	var	aaa = str.replace(/[^一-龠ーァ-ヶ0-9０-９A-zＡ-ｚ\-－・]/g, "\f").split("\f");
 	var	goix = {};
 	var bbb = "";
 	for (var i=0; i < aaa.length ; i++){
