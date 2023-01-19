@@ -678,6 +678,7 @@ function toLower(str) {
 		<OPTION value="/.{35}[、。，。,.．）)」]*/$&\n/gm">35文字で改行・禁則有り</OPTION>
 		<OPTION value="/<.*?>//g">htmlタグ削除</OPTION>
 		<OPTION value="/\\\\/￥/g">￥を全角に</OPTION>
+		<OPTION value="/([^（）\t]+)(（)([^（）\t]+)）/$3/g">全角()内のみ抽出</OPTION>
 	</SELECT>
 	<button type="button" onclick="reset_form()">リセット</button><br />
 	<label for="mybefor">検索</label>
