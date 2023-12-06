@@ -249,6 +249,7 @@ $(document).ready(function(){
 			if (cmd == "myUniq") $('#upper').val(myUniq($('#upper').val()));
 			if (cmd == "xtr") $('#upper').val(xtr($('#upper').val()));
 			if (cmd == "fTxt") $('#upper').val(fTxt($('#upper').val()));
+			if (cmd == "AddRowNumber") $('#upper').val(AddRowNumber($('#upper').val()));
 			$("select#mysort").val("0");
 			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 				myRireki.push($('#upper').val());	// 変換後の値を記憶
@@ -438,6 +439,20 @@ function StrRev(str) {
 	}
 	// ソート結果を書き戻す
 	return sortedArray.join("\n");
+}
+
+function AddRowNumber(str) {
+    // textareaの内容を改行で分割して配列に格納
+    var targetArray = str.split("\n");
+    var myrtn = "";
+
+    for (var i = 0; i < targetArray.length; i++) {
+        // 行番号を1から始めるためにi+1を使用
+        myrtn += (i + 1) + ": " + targetArray[i] + "\n";
+    }
+
+    // 結果を書き戻す
+    return myrtn;
 }
 
 /********************************************************
@@ -654,6 +669,7 @@ function toLower(str) {
 		<OPTION value="goi">単語出現回数</OPTION>
 		<OPTION value="xtr">指定文字数で改行</OPTION>
 		<OPTION value="fTxt">段落内改行削除</OPTION>
+		<OPTION value="AddRowNumber">行番号付加</OPTION>
 	</SELECT>
 	<input type="button" value="文字数" onclick="ShowStrLength()">
 	<SELECT name="sample" id="sel">
@@ -703,6 +719,6 @@ function toLower(str) {
 <a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a>
 <a href="http://www.cityjp.com/javascript/programmer/index.html" target="new">プログラム支援スクリプト(別サイト)</a><br />
 データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
-Copyright &copy; 2015-2022 Makoto Tomo ver.1.0.6 2022-6-17更新</p>
+Copyright &copy; 2015-2023 Makoto Tomo ver.1.0.7 2023-12-6更新</p>
 </body>
 </html>
