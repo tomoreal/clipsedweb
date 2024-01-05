@@ -696,10 +696,10 @@ function toLower(str) {
 		<OPTION value="/\\\\/￥/g">￥を全角に</OPTION>
 		<OPTION value="/[^（）\t]*（([^（）\t]+)）[^（）\t]*/$1/g">全角()内のみ抽出</OPTION>
 	</SELECT>
+	<input type="button" value="grep" onclick="myGrep()" title="検索文字列でgrep。スイッチも使います。">
 	<button type="button" onclick="reset_form()">リセット</button><br />
 	<label for="mybefor">検索</label>
 	<input name="mybefor" type="text" size="32" id="mybefor" title="正規表現可"/>
-	<input type="button" value="grep" onclick="myGrep()" title="検索文字列でgrep。スイッチも使います。">
 	<label for="myafter">置換</label> 
 	<input name="myafter" type="text" size="32" id="myafter" title="正規表現可"/>
 	<input type="button" id="doReplace" value="置換" onclick="myreplace()" style="WIDTH: 80px" /><br />
