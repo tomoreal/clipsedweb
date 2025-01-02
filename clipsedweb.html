@@ -92,7 +92,7 @@ function copy_text(){
 	$('#upper').select();
 	document.execCommand('copy');
 }
-function copy_clipboard(){
+async function copy_clipboard(){
 	var userAgent = window.navigator.userAgent.toLowerCase();
 	if(userAgent.indexOf('trident/7') != -1 || userAgent.indexOf('msie') != -1) {
 		$('#upper').focus();
