@@ -424,7 +424,7 @@ function SortBySmaller(str) {
 
 function LineReverce(str) {
 	// textareaの内容を改行で分割して配列に格納,逆順にして、連結して書き出す
-	return str.split("\n").reverse().join("\n");
+	return str.trimEnd().split("\n").reverse().join("\n");
 }
 
 function StrRev(str) {
