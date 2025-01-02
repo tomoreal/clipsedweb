@@ -109,16 +109,26 @@ function copy_clipboard(){
 	}
 }
 
-function oneshot() {
-	setTimeout(function() {
-		copy_clipboard();
-	setTimeout(function() {
-		myreplace();
-	setTimeout(function() {
-		copy_text();
-	}, 0);
-	}, 0);
-	}, 0);
+#function oneshot() {
+#	setTimeout(function() {
+#		copy_clipboard();
+#	setTimeout(function() {
+#		myreplace();
+#	setTimeout(function() {
+#		copy_text();
+#	}, 0);
+#	}, 0);
+#	}, 0);
+#}
+
+async function oneshot() {
+	try {
+		await copy_clipboard(); // クリップボードの内容を取得
+		myreplace();           // 置換処理
+		copy_text();           // コピー処理
+	} catch (error) {
+		console.error("Error in oneshot:", error);
+	}
 }
 
 function regHistory() {
