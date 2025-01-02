@@ -101,26 +101,15 @@ async function copy_clipboard(){
 		console.log("IE");
 	}
 	else {
-		navigator.clipboard.readText()
-			.then(function (text) {
-				upper.value = text;
-		console.log("非IE");
-			});
-	}
+	        try {
+	            const text = await navigator.clipboard.readText();
+	            document.getElementById('upper').value = text; // クリップボードの内容を取得
+	            console.log("非IE");
+	        } catch (error) {
+	            console.error("クリップボードの読み取りに失敗しました:", error);
+	        }
+    	}
 }
-
-//#function oneshot() {
-//#	setTimeout(function() {
-//#		copy_clipboard();
-//#	setTimeout(function() {
-//#		myreplace();
-//#	setTimeout(function() {
-//#		copy_text();
-//#	}, 0);
-//#	}, 0);
-//#	}, 0);
-//#}
-
 async function oneshot() {
 	try {
 		await copy_clipboard(); // クリップボードの内容を取得
