@@ -204,14 +204,10 @@ $(document).ready(function(){
 			if (cmd == "toLower") $('#upper').val(toLower($('#upper').val()));
 			if (cmd == "zentohan") $('#upper').val($('#upper').val().toOneByteAlphaNumeric());
 			if (cmd == "hantozen") $('#upper').val($('#upper').val().toTwoByteAlphaNumeric());
-			if (cmd == "kanahantozen") $('#upper').val(toZenkaku($('#upper').val()));
-			if (cmd == "kanazentohan") $('#upper').val(toHankaku($('#upper').val()));
 			if (cmd == "delHtmlTags") $('#upper').val(delHtmlTags($('#upper').val()));
 			if (cmd == "LineReverce") $('#upper').val(LineReverce($('#upper').val()));
 			if (cmd == "StrRev") $('#upper').val(StrRev($('#upper').val()));
-			if (cmd == "toArb") $('#upper').val(KanConv($('#upper').val()));
-			if (cmd == "katatohira") $('#upper').val(katatohira($('#upper').val()));
-			if (cmd == "hiratokata") $('#upper').val(hiratokata($('#upper').val()));
+			if (cmd == "WordRev") $('#upper').val(WordRev($('#upper').val()));
 			$("select#henkan").val("0");
 			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 				myRireki.push($('#upper').val());
@@ -266,59 +262,6 @@ String.prototype.toTwoByteAlphaNumeric = function(){
 	})
 	.replace(/＼/g,"￥");
 };
-
-function toZenkaku(motoText){
-	// http://www.openspc2.org/reibun/javascript/business/003/
-	var	txt = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｧｨｩｪｫｬｭｮｯ､｡ｰ｢｣ﾞﾟ";
-	var	zen = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォャュョッ、。ー「」";
-		zen+= "　　　　　ガギグゲゴザジズゼゾダヂヅデド　　　　　バビブベボ　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　";
-		zen+= "　　　　　　　　　　　　　　　　　　　　　　　　　パピプペポ　　　　　　　　　　　　　　　　　　　　　　　　　　　　　";
-	var	str = "";
-	for (var i=0; i<motoText.length; i++){
-		var	c = motoText.charAt(i);
-		var	cnext = motoText.charAt(i+1);
-		var	n = txt.indexOf(c,0);
-		var nnext = txt.indexOf(cnext,0);
-		if (n >= 0){
-			if (nnext == 60){
-				c = zen.charAt(n+60);
-				i++;
-			}else if (nnext == 61){
-				c = zen.charAt(n+120);
-				i++;
-			}else{
-				c = zen.charAt(n);
-			}
-		}
-		if ((n != 60) && (n != 61)){
-			str += c;
-		}
-	}
-	return str;
-}
-
-function toHankaku(motoText){
-	// http://www.openspc2.org/reibun/javascript/business/004/
-	var	han = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｧｨｩｪｫｬｭｮｯ､｡ｰ｢｣";
-	var	txt = "アイウエオカキクケコサシスセソタチツテトナニヌネノ";
-		txt+= "ハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォャュョッ、。ー「」";
-	var	str = "";
-	var strorg = motoText;
- 	strorg = strorg
-	.replace(/ガ/g,"ｶﾞ").replace(/ギ/g,"ｷﾞ").replace(/グ/g,"ｸﾞ").replace(/ゲ/g,"ｹﾞ").replace(/ゴ/g,"ｺﾞ")
-	.replace(/ザ/g,"ｻﾞ").replace(/ジ/g,"ｼﾞ").replace(/ズ/g,"ｽﾞ").replace(/ゼ/g,"ｾﾞ").replace(/ゾ/g,"ｿﾞ")
-	.replace(/ダ/g,"ﾀﾞ").replace(/ヂ/g,"ﾁﾞ").replace(/ヅ/g,"ﾂﾞ").replace(/デ/g,"ﾃﾞ").replace(/ド/g,"ﾄﾞ")
-	.replace(/バ/g,"ﾊﾞ").replace(/パ/g,"ﾊﾟ").replace(/ビ/g,"ﾋﾞ").replace(/ピ/g,"ﾋﾟ").replace(/ブ/g,"ﾌﾞ")
-	.replace(/プ/g,"ﾌﾟ").replace(/ベ/g,"ﾍﾞ").replace(/ペ/g,"ﾍﾟ").replace(/ボ/g,"ﾎﾞ").replace(/ポ/g,"ﾎﾟ")
-	.replace(/ヴ/g,"ｳﾞ").replace(/゜/g,"ﾟ").replace(/゛/g,"ﾞ");
-	for (var i=0; i<strorg.length; i++){
-		var	c = strorg.charAt(i);
-		var	n = txt.indexOf(c,0);
-		if (n >= 0) c = han.charAt(n);
-		str += c;
-	}
-	return str;
-}
 
 function ShowStrLength() {
     // count chars, lines, and words
@@ -425,6 +368,16 @@ function StrRev(str) {
 	return sortedArray.join("\n");
 }
 
+function WordRev(str) {
+    var sortedArray = [];
+    var targetArray = str.split("\n");
+    for (var i = 0; i < targetArray.length; i++) {
+        var words = targetArray[i].split(/\s+/);
+        sortedArray[i] = words.reverse().join(" ");
+    }
+    return sortedArray.join("\n");
+}
+
 function AddRowNumber(str) {
     var targetArray = str.split("\n");
     var myrtn = "";
@@ -434,48 +387,6 @@ function AddRowNumber(str) {
     }
 
     return myrtn;
-}
-
-/********************************************************
- *漢数字をアラビア数字にする
- *Copyright (c) 2005 AOK. All Rights Reserved.
- ********************************************************/
-
-var suuji = "〇一二三四五六七八九零壱弐参肆伍陸漆捌玖零壹貳參四五六柒八九";
-var keta1 = "十百千拾佰仟十陌阡";
-var keta2 = "万億兆萬";
-
-function toArb(kanji) {
-	var i, r, a, b = 0, c, d, t = 0, f = false;
-	for (i = 0; i < kanji.length; i++) {
-		c = kanji.charAt(i);
-		if ((r = suuji.indexOf(c)) != -1) {
-			if (f === false) {
-				b += r % 10;
-				f = true;
-			} else {
-				b = b * 10 + r % 10;
-			}
-		} else if ((r = keta1.indexOf(c)) != -1) {
-			t += b;
-			d = t % 10;
-			a = (d === 0 ? 1 : d) * Math.pow(10, r % 3 + 1);
-			t += a - d;
-			b = 0;
-			f = false;
-		} else if ((r = keta2.indexOf(c)) != -1) {
-			t += b;
-			d = t % 10000;
-			a = d * Math.pow(10000, r % 3 + 1);
-			t += a - d;
-			b = 0;
-			f = false;
-		} else {
-			window.alert("解析できませんでした：" + kanji);
-			return kanji;
-		}
-	}
-	return t + b;
 }
 
 function formatComma(val) {
@@ -500,18 +411,6 @@ function KanConv(str) {
 	});
 }
 
-function hiratokata (TargetString){
-	return TargetString.replace(/[ぁ-ん]/g, function(s) {
-		return String.fromCharCode(s.charCodeAt(0) + 0x60);
-	});
-}
-
-function katatohira (TargetString){
-	return TargetString.replace(/[ァ-ン]/g, function(s) {
-		return String.fromCharCode(s.charCodeAt(0) - 0x60);
-	});
-}
-
 function myUniq(){
 	if ($('#upper').val() === '') return;
 	var Text1S = $('#upper').val().replace(/\r\n/g,"\n").replace(/\r/g,"\n").replace(/\n+/g,"\n").replace(/^\n|\n$/g,"").split("\n").sort();
@@ -524,28 +423,59 @@ function myUniq(){
 	return Text2S.join("\n");
 }
 
-function xtr (str){
-	var myChar = [], countNo = 0 , myResult = "", orikaeshi = 70;
-	var userNum = window.prompt("enter the number of characters to wrap", "70");
-	userNum = userNum.toOneByteAlphaNumeric();
-	if(userNum > 0) orikaeshi = userNum;
-		myChar = str.split("");
-	for (var i = 0; i < myChar.length; i++) {
-		(myChar[i].match(/[ -~｡-ﾟ]/))? countNo++ : countNo = countNo + 2;
-		(myChar[i].match(/\n/))? countNo =0: false;
-		myResult = myResult + myChar[i];
-		if (myChar.length !== i + 1) { 
-			if (countNo >= orikaeshi - 2 && myChar[i+1].match(/[「『（［〈《〔【\(\[]・/)) {
-				myResult = myResult + "\n";
-				countNo = 0;
-			}
-			if (countNo >= orikaeshi && myChar[i+1].match(/[^、。，。,.．）)」』》］\]､｡｣\s]/)) {
-				myResult = myResult + "\n";
-				countNo = 0;
-			}
-		}
-	}
-	return myResult;
+function xtr(str) {
+    let orikaeshi = 70;
+    let userNum = window.prompt("Enter the number of characters to wrap", "70");
+    userNum = userNum.toOneByteAlphaNumeric();
+    if (userNum > 0) orikaeshi = parseInt(userNum, 10);
+
+    // 段落ごとに分割（空行もそのまま残す）
+    let paragraphs = str.split(/\n{2,}/); // 2つ以上の連続した改行で分割
+    let result = [];
+
+    paragraphs.forEach(paragraph => {
+        if (paragraph === "") {
+            // 空行はそのまま追加
+            result.push("");
+        } else {
+            let words = paragraph.split(/(\s+)/); // 単語と空白を含む配列に分割
+            let countNo = 0;
+            let currentLine = "";
+            let wrappedParagraph = "";
+
+            for (let i = 0; i < words.length; i++) {
+                let word = words[i];
+                let wordLength = 0;
+
+                // 文字数を計算（全角2文字、半角1文字）
+                for (let char of word) {
+                    wordLength += char.match(/[ -~｡-ﾟ]/) ? 1 : 2; // 半角は1、全角は2
+                }
+
+                if (countNo + wordLength > orikaeshi) {
+                    // 行の幅を超えた場合、新しい行にする
+                    wrappedParagraph += currentLine.trim() + "\n";
+                    currentLine = word;
+                    countNo = wordLength;
+                } else {
+                    // 現在の行に単語を追加
+                    currentLine += word;
+                    countNo += wordLength;
+                }
+            }
+
+            // 最後の行を追加
+            if (currentLine) {
+                wrappedParagraph += currentLine.trim();
+            }
+
+            // 折り返した段落を結果に追加
+            result.push(wrappedParagraph);
+        }
+    });
+
+    // 空行が存在する場合のみ空行で結合
+    return result.filter(paragraph => paragraph !== "").join("\n\n") + (result.length > 1 ? "\n\n" : "");
 }
 
 function fTxt (str){
@@ -616,16 +546,10 @@ function toLower(str) {
 		<OPTION value="0">Character Conversion</OPTION>
 		<OPTION value="toUpper">To Uppercase (abc->ABC)</OPTION>
 		<OPTION value="toLower">To Lowercase (ABC->abc)</OPTION>
-		<OPTION value="zentohan">Full-width Char to Half-width</OPTION>
-		<OPTION value="hantozen">Half-width Char to Full-width</OPTION>
 		<OPTION value="delHtmlTags">Remove HTML Tags</OPTION>
 		<OPTION value="LineReverce">Reverse Line Order</OPTION>
 		<OPTION value="StrRev">Reverse Characters</OPTION>
-		<OPTION value="toArb">Kanji Numerals to Arabic</OPTION>
-		<OPTION value="kanahantozen">ｶﾅ->カナ</OPTION>
-		<OPTION value="kanazentohan">カナ->ｶﾅ</OPTION>
-		<OPTION value="hiratokata">かな->カナ</OPTION>
-		<OPTION value="katatohira">カナ->かな</OPTION>
+		<OPTION value="WordRev">Reverse Words</OPTION>
 	</SELECT>
 	<SELECT name="mysort" id="mysort">
 		<OPTION value="0">sort</OPTION>
@@ -635,7 +559,7 @@ function toLower(str) {
 		<OPTION value="SortBySmaller">Text Sort (Ascending)</OPTION>
 		<OPTION value="myUniq">Remove Duplicate Lines</OPTION>
 		<OPTION value="goi">Word Frequency Count</OPTION>
-		<OPTION value="xtr">Insert Line Break</OPTION>
+		<OPTION value="xtr">Formatting with a specified number</OPTION>
 		<OPTION value="fTxt">Remove CR in Paragraphs</OPTION>
 		<OPTION value="AddRowNumber">Add Line Numbers</OPTION>
 	</SELECT>
@@ -647,22 +571,20 @@ function toLower(str) {
 		<option value="/^/\/\/ /gm">Add //</option>
 		<option value="/$/ </gm">Add &lt; to Line End</option>
 		<option value="/^.*$/> $& < /gm">Add Quote Marks Line Start and End</option>
-		<option value="/[ 　\t]//g">Remove Whitespaces Except CR</option>
-		<OPTION value="/^[^　[「『（［〈《〔【\(\[・※]/　$&/gm">Add Space to Line Start</OPTION>
+		<option value="/[ \t]//g">Remove Whitespaces Except CR</option>
+		<OPTION value="/^[^[「『（［〈《〔【\(\[・※]/ $&/gm">Add Space to Line Start</OPTION>
 		<option value="/^> *//gm">Remove Quote Marks</option>
 		<OPTION value="/(\d)(?=(\d\d\d)+(?!\d))/$1,/g">Insert Comma for Numeric Groups</OPTION>
-		<OPTION value="/[,，]([^0-9０-９])/、$1/g">Convert Non-Digit Commas to 、</OPTION>
 		<OPTION value="/,/\t/g">Convert Comma to Tab</OPTION>
-		<OPTION value="/([^\s　]+)([\s　]+)([^\s　]+)/$3$2$1/gm">Swap Word Pairs</OPTION>
+		<OPTION value="/([^\s]+)([\s]+)([^\s]+)/$3$2$1/gm">Swap Word Pairs</OPTION>
 		<OPTION value="/Java(?!Script)/c#/gm">Negative Lookahead</OPTION>
-		<OPTION value="/下(?=さい)/くだ/gm">Positive Lookahead</OPTION>
+		<OPTION value="/submit(?= it)/send/gm">Positive Lookahead</OPTION>
 		<OPTION value="/[△▲](?=[0-9])/-/gm">Convert △ to -</OPTION>
-		<OPTION value="/([^。])\n/$1/gm">Remove CR Except After "。" </OPTION>
-		<OPTION value="/\n([^　\n])/$1/g">Remove CR Except Before "　"</OPTION>
-		<OPTION value="/.{35}[、。，。,.．）)」]*/$&\n/gm">Insert CR at 35 Characters</OPTION>
+		<OPTION value="/([^.])\n/$1/gm">Remove CR Except After "." </OPTION>
+		<OPTION value="/\n([^ \n])/$1/g">Remove CR Except Before "blank"</OPTION>
 		<OPTION value="/<.*?>//g">Remove HTML Tags</OPTION>
 		<OPTION value="/\\\\/￥/g">Convert \ to Full-width ￥</OPTION>
-		<OPTION value="/[^（）\t]*（([^（）\t]+)）[^（）\t]*/$1/g">Extract Text Inside Full-width Parentheses</OPTION>
+		<OPTION value="/[^“”\t]*“([^“”\t]+)”[^“”\t]*/$1\n/g">Extract characters enclosed in “”.</OPTION>
 	</SELECT>
 	<input type="button" value="Grep" onclick="myGrep()" title="Search string using grep. Switch options are available.">
 	<button type="button" onclick="reset_form()">Reset</button><br />
