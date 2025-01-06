@@ -1,0 +1,690 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="author" content="Makoto Tomo" />
+<meta name="keywords" content="clipsedweb, javascript, jquery, replace, regExp, substitution, regex" />
+<meta name="description" content="A web service for substitutions using regular expressions. Web version of the Windows software clipsed." />
+<meta name="description" content="version 1.0.8 2024/1/5" />
+<link rel="icon" href="favicon.ico">
+<title>clipsedWeb</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script-->
+<script type="text/javascript">
+var myRireki = [], MyhistoryNo = 0; myRegRireki = [], MyRegHistoryNo = 0;
+
+function firstscript() {
+	$('#mybefor').focus();
+}
+
+function reset_form() {
+	document.form1.reset();
+	$('#upper').focus();
+}
+
+function showHistory() {
+	// display the number of replace history
+	var moji = MyhistoryNo + "/" + myRireki.length;
+	$('#s_rireki').html(moji);
+}
+$(document).on('click', '.btn_history', function(event){
+	// display the replace history
+	var btnid = $(this).attr("id");
+	if (btnid == "myfirstbtn") {	// first
+		if (MyhistoryNo >= 1) MyhistoryNo=1;
+	}
+	else if (btnid == "mybeforbtn") {	// before
+		if (MyhistoryNo > 1) MyhistoryNo--;
+	}
+	else if (btnid == "myafterbtn") {	// after
+		if (MyhistoryNo < myRireki.length) MyhistoryNo++;
+	}
+	else if (btnid == "mylastbtn") {	// end
+		MyhistoryNo= myRireki.length;
+	}
+	$('#upper').val(myRireki[MyhistoryNo-1]);
+	showHistory();
+});
+
+function showRegHistory() {
+	// display the number of reg history
+	var moji = MyReghistoryNo + "/" + myRegRireki.length;
+	$('#s_reg_rireki').html(moji);
+}
+$(document).on('click', '.btn_reg_history', function(event){
+	// display the reg history
+	var btnid = $(this).attr("id");
+	if (btnid == "myfirstbtn_r") {	// first
+		if (MyReghistoryNo >= 1) MyReghistoryNo=1;
+	}
+	else if (btnid == "mybeforbtn_r") {	// before
+		if (MyReghistoryNo > 1) MyReghistoryNo--;
+	}
+	else if (btnid == "myafterbtn_r") {	// after
+		if (MyReghistoryNo < myRegRireki.length) MyReghistoryNo++;
+	}
+	else if (btnid == "mylastbtn_r") {	// end
+		MyReghistoryNo= myRegRireki.length;
+	}
+	var source = myRegRireki[MyReghistoryNo-1].replace(/\\\\/g,"%5C").replace(/\\\//g,"%2F");
+	var regsam = source.split("/");	
+	$('#mybefor').val(regsam[1].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
+	$('#myafter').val(regsam[2].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
+	$('#mysw').val(regsam[3]);
+	if (regsam[4] == "true") {
+		$('#mygrepsw').prop("checked" , true);
+	}
+	else {
+		$('#mygrepsw').prop("checked" , false);
+	}
+	
+	showRegHistory();
+});
+
+
+function sel_text(){
+	$('#upper').focus();
+	$('#upper').select();
+}
+
+function copy_text(){
+	$('#upper').focus();
+	$('#upper').select();
+	document.execCommand('copy');
+}
+async function copy_clipboard(){
+	var userAgent = window.navigator.userAgent.toLowerCase();
+	if(userAgent.indexOf('trident/7') != -1 || userAgent.indexOf('msie') != -1) {
+		$('#upper').focus();
+		$('#upper').select();
+		document.execCommand('paste');
+		console.log("IE");
+	}
+	else {
+	        try {
+	            const text = await navigator.clipboard.readText();
+	            document.getElementById('upper').value = text; // get the clipboard text
+	            console.log("NOT IE");
+	        } catch (error) {
+	            console.error("error: cannot read the clipboarad:", error);
+	        }
+    	}
+}
+async function oneshot() {
+	try {
+		await copy_clipboard(); // get the clipboarad text
+		myreplace();           // replace
+		copy_text();           // copy text
+	} catch (error) {
+		console.error("Error in oneshot:", error);
+	}
+}
+
+function regHistory() {
+	var myReg = "/" + $('#mybefor').val().replace(/\\/g,"%5C").replace(/\//g,"%2F") + "/" + $('#myafter').val().replace(/\\/g,"%5C").replace(/\//g,"%2F") + "/" + $('#mysw').val() + "/" + $("#mygrepsw").prop('checked');
+	if (myRegRireki[myRegRireki.length - 1] !== myReg) {
+		myRegRireki.push(myReg);
+		MyReghistoryNo = myRegRireki.length;
+		showRegHistory();
+	}
+}
+function myreplace(){
+	if (myRireki[myRireki.length - 1] !== $('#upper').val())
+ 		myRireki.push($('#upper').val());
+	var mybefor = new RegExp($('#mybefor').val(),$('#mysw').val());
+	var myafter = $('#myafter').val()
+		.replace(/\\n/g, "\n")
+		.replace(/\\t/g, "\t")
+		.replace(/\\r/g, "\r");
+	$('#upper').val($('#upper').val().replace(mybefor,myafter));
+	if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
+		myRireki.push($('#upper').val());
+		MyhistoryNo = myRireki.length;
+		showHistory();
+	}
+	regHistory();
+}
+
+function myGrep(){
+	// view-source:http://www.cityjp.com/javascript/programmer/text31.html
+	var TextS = $('#upper').val().replace(/\r\n/g,"\n").replace(/\r/g,"\n").split("\n");
+	var NextTextS = [];
+	var mycount = 0;
+	if ($('#mybefor').val() === "") return;
+// 置換処理
+	if (myRireki[myRireki.length - 1] !== $('#upper').val())
+		myRireki.push($('#upper').val());	
+		var FindREG = new RegExp($('#mybefor').val(),$('#mysw').val());
+	if ($("#mygrepsw").prop('checked')) {
+		for (var i in TextS){
+			if (TextS[i].match(FindREG) == null){
+				NextTextS.push(TextS[i]);
+				mycount++;
+			}
+		}
+	}
+	else {
+		for (var i in TextS){
+			if (TextS[i].match(FindREG)){
+				NextTextS.push(TextS[i]);
+				mycount++;
+			}
+		}
+	}
+
+	$('#upper').val(NextTextS.join("\n"));
+	if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
+		myRireki.push($('#upper').val());
+		MyhistoryNo = myRireki.length;
+		showHistory();
+	}
+	regHistory();
+}
+
+$(document).ready(function(){
+	var regsum;
+	$('#sel').bind('change', function() {
+		var source = $('#sel').val().replace(/\\\\/g,"%5C").replace(/\\\//g,"%2F");
+		regsum = source.split("/");
+		$('#mybefor').val(regsum[1].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
+		$('#myafter').val(regsum[2].replace(/%5C/g,"\\").replace(/%2F/g,"\/"));
+		$('#mysw').val(regsum[3]);
+		$('#doReplace').focus();
+
+	});
+});
+
+$(document).ready(function(){
+	$('#henkan').on('change', function() {
+		if (myRireki[myRireki.length - 1] !== $('#upper').val())
+	 		myRireki.push($('#upper').val());
+		var cmd = $('#henkan').val();
+		setTimeout(function() {
+			if (cmd == "toUpper") $('#upper').val(toUpper($('#upper').val()));
+			if (cmd == "toLower") $('#upper').val(toLower($('#upper').val()));
+			if (cmd == "zentohan") $('#upper').val($('#upper').val().toOneByteAlphaNumeric());
+			if (cmd == "hantozen") $('#upper').val($('#upper').val().toTwoByteAlphaNumeric());
+			if (cmd == "kanahantozen") $('#upper').val(toZenkaku($('#upper').val()));
+			if (cmd == "kanazentohan") $('#upper').val(toHankaku($('#upper').val()));
+			if (cmd == "delHtmlTags") $('#upper').val(delHtmlTags($('#upper').val()));
+			if (cmd == "LineReverce") $('#upper').val(LineReverce($('#upper').val()));
+			if (cmd == "StrRev") $('#upper').val(StrRev($('#upper').val()));
+			if (cmd == "toArb") $('#upper').val(KanConv($('#upper').val()));
+			if (cmd == "katatohira") $('#upper').val(katatohira($('#upper').val()));
+			if (cmd == "hiratokata") $('#upper').val(hiratokata($('#upper').val()));
+			$("select#henkan").val("0");
+			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
+				myRireki.push($('#upper').val());
+				MyhistoryNo = myRireki.length;
+				showHistory();
+			}
+		}, 0);
+	});
+});
+
+$(document).ready(function(){
+	$('#mysort').on('change', function() {
+		if (myRireki[myRireki.length - 1] !== $('#upper').val())
+	 		myRireki.push($('#upper').val());
+		var cmd = $('#mysort').val();
+		setTimeout(function() {
+			if (cmd == "goi") $('#upper').val(goi($('#upper').val()));
+			if (cmd == "SortByNumLarger") $('#upper').val(SortByNumLarger($('#upper').val()));
+			if (cmd == "SortByNumSmaller") $('#upper').val(SortByNumSmaller($('#upper').val()));
+			if (cmd == "SortByLarger") $('#upper').val(SortByLarger($('#upper').val()));
+			if (cmd == "SortBySmaller") $('#upper').val(SortBySmaller($('#upper').val()));
+			if (cmd == "myUniq") $('#upper').val(myUniq($('#upper').val()));
+			if (cmd == "xtr") $('#upper').val(xtr($('#upper').val()));
+			if (cmd == "fTxt") $('#upper').val(fTxt($('#upper').val()));
+			if (cmd == "AddRowNumber") $('#upper').val(AddRowNumber($('#upper').val()));
+			$("select#mysort").val("0");
+			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
+				myRireki.push($('#upper').val());
+				MyhistoryNo = myRireki.length;
+				showHistory();
+			}
+		}, 0);
+	});
+});
+
+$(document).ready(function(){
+	$('#sel').on('change', function() {
+		$("#sel").val("0");
+	});
+});
+
+String.prototype.toOneByteAlphaNumeric = function(){
+	return this.replace(/[！-～]/g, function(s) {
+		return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+	})
+	.replace(/￥/g,"\\");
+};
+ 
+String.prototype.toTwoByteAlphaNumeric = function(){
+	return this.replace(/[\!-\~]/g, function(s) {
+		return String.fromCharCode(s.charCodeAt(0) + 0xFEE0);
+	})
+	.replace(/＼/g,"￥");
+};
+
+function toZenkaku(motoText){
+	// http://www.openspc2.org/reibun/javascript/business/003/
+	var	txt = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｧｨｩｪｫｬｭｮｯ､｡ｰ｢｣ﾞﾟ";
+	var	zen = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォャュョッ、。ー「」";
+		zen+= "　　　　　ガギグゲゴザジズゼゾダヂヅデド　　　　　バビブベボ　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　";
+		zen+= "　　　　　　　　　　　　　　　　　　　　　　　　　パピプペポ　　　　　　　　　　　　　　　　　　　　　　　　　　　　　";
+	var	str = "";
+	for (var i=0; i<motoText.length; i++){
+		var	c = motoText.charAt(i);
+		var	cnext = motoText.charAt(i+1);
+		var	n = txt.indexOf(c,0);
+		var nnext = txt.indexOf(cnext,0);
+		if (n >= 0){
+			if (nnext == 60){
+				c = zen.charAt(n+60);
+				i++;
+			}else if (nnext == 61){
+				c = zen.charAt(n+120);
+				i++;
+			}else{
+				c = zen.charAt(n);
+			}
+		}
+		if ((n != 60) && (n != 61)){
+			str += c;
+		}
+	}
+	return str;
+}
+
+function toHankaku(motoText){
+	// http://www.openspc2.org/reibun/javascript/business/004/
+	var	han = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｧｨｩｪｫｬｭｮｯ､｡ｰ｢｣";
+	var	txt = "アイウエオカキクケコサシスセソタチツテトナニヌネノ";
+		txt+= "ハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォャュョッ、。ー「」";
+	var	str = "";
+	var strorg = motoText;
+ 	strorg = strorg
+	.replace(/ガ/g,"ｶﾞ").replace(/ギ/g,"ｷﾞ").replace(/グ/g,"ｸﾞ").replace(/ゲ/g,"ｹﾞ").replace(/ゴ/g,"ｺﾞ")
+	.replace(/ザ/g,"ｻﾞ").replace(/ジ/g,"ｼﾞ").replace(/ズ/g,"ｽﾞ").replace(/ゼ/g,"ｾﾞ").replace(/ゾ/g,"ｿﾞ")
+	.replace(/ダ/g,"ﾀﾞ").replace(/ヂ/g,"ﾁﾞ").replace(/ヅ/g,"ﾂﾞ").replace(/デ/g,"ﾃﾞ").replace(/ド/g,"ﾄﾞ")
+	.replace(/バ/g,"ﾊﾞ").replace(/パ/g,"ﾊﾟ").replace(/ビ/g,"ﾋﾞ").replace(/ピ/g,"ﾋﾟ").replace(/ブ/g,"ﾌﾞ")
+	.replace(/プ/g,"ﾌﾟ").replace(/ベ/g,"ﾍﾞ").replace(/ペ/g,"ﾍﾟ").replace(/ボ/g,"ﾎﾞ").replace(/ポ/g,"ﾎﾟ")
+	.replace(/ヴ/g,"ｳﾞ").replace(/゜/g,"ﾟ").replace(/゛/g,"ﾞ");
+	for (var i=0; i<strorg.length; i++){
+		var	c = strorg.charAt(i);
+		var	n = txt.indexOf(c,0);
+		if (n >= 0) c = han.charAt(n);
+		str += c;
+	}
+	return str;
+}
+
+function ShowStrLength() {
+    // count chars, lines, and words
+    var mojisuu, num, gyosuu, avgMoji, wordCount;
+    var text = $('#upper').val();
+
+    // Count characters (excluding spaces and line breaks)
+    mojisuu = text.replace(/\s/g, "").replace(/　/g, "").length;
+
+    // Count lines
+    num = text.match(/\r\n|\n/g);
+    if (num !== null) {
+        gyosuu = num.length + 1;
+    } else {
+        gyosuu = 1;
+    }
+
+    // Calculate average characters per line
+    avgMoji = mojisuu / gyosuu;
+
+    // Count words (assuming words are sequences of alphabetic characters)
+    wordCount = (text.match(/\b[a-zA-Z]+\b/g) || []).length;
+
+    // Display results
+    alert(
+        mojisuu.toLocaleString() + " chars (not include spaces and CR)\n" +
+        gyosuu.toLocaleString() + " lines\n" +
+        Math.round(avgMoji).toLocaleString() + " chars/line\n" +
+        wordCount.toLocaleString() + " words"
+    );
+}
+
+function delHtmlTags(str) {
+	return str.replace(/<(no)?script(.|\s)*?<\/(no)?script>/gi, '')
+				.replace(/<style(.|\s)*?<\/(no)?style>/gi, '')
+				.replace(/<.*?>/g, '');
+}
+
+function goi(str) {
+	var	aaa = str.replace(/[^一-龠ーァ-ヶ0-9０-９A-zＡ-ｚ\-－・]/g, "\f").split("\f");
+	var	goix = {};
+	var bbb = "";
+	for (var i=0; i < aaa.length ; i++){
+		if (aaa[i] !== "") {
+			if (goix[aaa[i]] > 0) {
+				goix[aaa[i]]++;
+			}
+			else {
+				goix[aaa[i]] =1;
+			}
+		}
+	}
+	var aSIN = [];
+	for( i in goix ){
+		aSIN.push({key:i,val:goix[i]});
+	}
+	aSIN.sort(largeVal);
+	function largeVal(a,b){ return (a.val < b.val) ? 1 : -1 ; }
+
+	for (i=0; i < aSIN.length ; i++) {
+		bbb = bbb + aSIN[i].val.toLocaleString() + '\t' + aSIN[i].key + '\n';
+	}
+	return bbb;
+}
+
+function SortByNumLarger(str) {
+	var targetArray = str.replace(/\n+$/,"").split("\n");
+	var sortedArray = targetArray.sort( function(a,b) {
+		return Number(b) - Number(a);
+	} );
+	return sortedArray.join("\n");
+}
+
+function SortByNumSmaller(str) {
+	var targetArray = str.replace(/\n+$/,"").split("\n");
+	var sortedArray = targetArray.sort( function(a,b) {
+		return Number(a) - Number(b);
+	} );
+	return sortedArray.join("\n");
+}
+
+function SortByLarger(str) {
+	var targetArray = str.replace(/\n+$/,"").split("\n");
+	var sortedArray = targetArray.sort().reverse();
+	return sortedArray.join("\n");
+}
+
+function SortBySmaller(str) {
+	var targetArray = str.replace(/\n+$/,"").split("\n");
+	var sortedArray = targetArray.sort();
+	return sortedArray.join("\n");
+}
+
+function LineReverce(str) {
+	return str.trimEnd().split("\n").reverse().join("\n");
+}
+
+function StrRev(str) {
+	var sortedArray = [];
+	var targetArray = str.split("\n");
+	for (var i=0; i < targetArray.length ; i++) {
+		sortedArray[i] = targetArray[i].split("").reverse().join("");
+	}
+	return sortedArray.join("\n");
+}
+
+function AddRowNumber(str) {
+    var targetArray = str.split("\n");
+    var myrtn = "";
+
+    for (var i = 0; i < targetArray.length; i++) {
+        myrtn += (i + 1) + ": " + targetArray[i] + "\n";
+    }
+
+    return myrtn;
+}
+
+/********************************************************
+ *漢数字をアラビア数字にする
+ *Copyright (c) 2005 AOK. All Rights Reserved.
+ ********************************************************/
+
+var suuji = "〇一二三四五六七八九零壱弐参肆伍陸漆捌玖零壹貳參四五六柒八九";
+var keta1 = "十百千拾佰仟十陌阡";
+var keta2 = "万億兆萬";
+
+function toArb(kanji) {
+	var i, r, a, b = 0, c, d, t = 0, f = false;
+	for (i = 0; i < kanji.length; i++) {
+		c = kanji.charAt(i);
+		if ((r = suuji.indexOf(c)) != -1) {
+			if (f === false) {
+				b += r % 10;
+				f = true;
+			} else {
+				b = b * 10 + r % 10;
+			}
+		} else if ((r = keta1.indexOf(c)) != -1) {
+			t += b;
+			d = t % 10;
+			a = (d === 0 ? 1 : d) * Math.pow(10, r % 3 + 1);
+			t += a - d;
+			b = 0;
+			f = false;
+		} else if ((r = keta2.indexOf(c)) != -1) {
+			t += b;
+			d = t % 10000;
+			a = d * Math.pow(10000, r % 3 + 1);
+			t += a - d;
+			b = 0;
+			f = false;
+		} else {
+			window.alert("解析できませんでした：" + kanji);
+			return kanji;
+		}
+	}
+	return t + b;
+}
+
+function formatComma(val) {
+	var s = "" + val;
+	if (s.length > 3) {
+		var r = ((r = s.length % 3) === 0 ? 3 : r);
+		var d = s.substring(r);
+		s = s.substr(0, r) + d.replace(/(\d{3})/g, ",$1");
+	}
+	return s;
+}
+
+function KanConv(str) {
+	var reg = new RegExp("([" + suuji + keta1 + "][" + suuji + keta1 + keta2 + "]*)", "g");
+	var src = str;
+	src = src.replace(/廿/g, "二十")
+			.replace(/卅/g, "三十")
+			.replace(/丗/g, "三十");
+	return src.replace(reg,
+	function ($0) {
+		return formatComma(toArb($0));
+	});
+}
+
+function hiratokata (TargetString){
+	return TargetString.replace(/[ぁ-ん]/g, function(s) {
+		return String.fromCharCode(s.charCodeAt(0) + 0x60);
+	});
+}
+
+function katatohira (TargetString){
+	return TargetString.replace(/[ァ-ン]/g, function(s) {
+		return String.fromCharCode(s.charCodeAt(0) - 0x60);
+	});
+}
+
+function myUniq(){
+	if ($('#upper').val() === '') return;
+	var Text1S = $('#upper').val().replace(/\r\n/g,"\n").replace(/\r/g,"\n").replace(/\n+/g,"\n").replace(/^\n|\n$/g,"").split("\n").sort();
+	var Text2S = [];
+	var TextTemp = '';
+	for (var i in Text1S){
+		if (TextTemp != Text1S[i]) Text2S.push(Text1S[i]);
+		TextTemp = Text1S[i];
+	}
+	return Text2S.join("\n");
+}
+
+function xtr (str){
+	var myChar = [], countNo = 0 , myResult = "", orikaeshi = 70;
+	var userNum = window.prompt("enter the number of characters to wrap", "70");
+	userNum = userNum.toOneByteAlphaNumeric();
+	if(userNum > 0) orikaeshi = userNum;
+		myChar = str.split("");
+	for (var i = 0; i < myChar.length; i++) {
+		(myChar[i].match(/[ -~｡-ﾟ]/))? countNo++ : countNo = countNo + 2;
+		(myChar[i].match(/\n/))? countNo =0: false;
+		myResult = myResult + myChar[i];
+		if (myChar.length !== i + 1) { 
+			if (countNo >= orikaeshi - 2 && myChar[i+1].match(/[「『（［〈《〔【\(\[]・/)) {
+				myResult = myResult + "\n";
+				countNo = 0;
+			}
+			if (countNo >= orikaeshi && myChar[i+1].match(/[^、。，。,.．）)」』》］\]､｡｣\s]/)) {
+				myResult = myResult + "\n";
+				countNo = 0;
+			}
+		}
+	}
+	return myResult;
+}
+
+function fTxt (str){
+	var myChar = [], countNo = 0 , myResult = "";
+	myChar = str.split("");
+	for (var i = 0; i < myChar.length; i ++) {
+		if ( i > 1 && myChar[i].match(/\n/) && i < myChar.length - 1) {
+			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/[　 「『（［〈《〔【\(\[・※]/)) {
+				myResult = myResult + myChar[i];
+			}
+		}
+		else {
+			myResult = myResult + myChar[i];
+		}
+	}
+	return myResult;
+}
+
+$(window).bind("resize ready", function(event){
+	adjustHight();
+});
+
+function adjustHight () {
+	$('#upper').height(
+		$('#upper').height() +
+		$(window).height() -
+		$(document.body).height() - 40
+	);
+}
+
+window.onload = function() {
+	adjustHight();
+	firstscript();
+	copy_clipboard();
+}
+
+function toUpper(str) {
+	return str.toUpperCase();;
+}
+
+function toLower(str) {
+	return str.toLowerCase();;
+}
+
+</script>
+<style type="text/css">
+.textarea {
+	font-family: "ＭＳ ゴシック", "MS Gothic", "Osaka－等幅", Osaka-mono, monospace;
+	width: 99%;
+	overflow:auto;
+}
+</style>
+</head>
+
+<body>
+<p>
+<form id="form1" name="form1" method="post" action="">
+	<input type="button" value="from clipboard" onclick="copy_clipboard()">
+	<input type="button" value ="to clipboard" onclick="copy_text()">
+	<input type="button" value="oneshot" title="xecutes replacement on clipboard data and writes it back to the clipboard." onclick="oneshot()">
+	<label>Expression History</label>
+	<input type="button" class="btn_reg_history" id="myfirstbtn_r" value="<<">
+	<input type="button" class="btn_reg_history" id="mybeforbtn_r" value="<">
+	<input type="button" class="btn_reg_history" id="myafterbtn_r" value=">">
+	<input type="button" class="btn_reg_history" id="mylastbtn_r" value=">>">
+	<span id="s_reg_rireki"></span><br />
+	<SELECT name="henkan" id="henkan">
+		<OPTION value="0">Character Conversion</OPTION>
+		<OPTION value="toUpper">To Uppercase (abc->ABC)</OPTION>
+		<OPTION value="toLower">To Lowercase (ABC->abc)</OPTION>
+		<OPTION value="zentohan">Full-width Char to Half-width</OPTION>
+		<OPTION value="hantozen">Half-width Char to Full-width</OPTION>
+		<OPTION value="delHtmlTags">Remove HTML Tags</OPTION>
+		<OPTION value="LineReverce">Reverse Line Order</OPTION>
+		<OPTION value="StrRev">Reverse Characters</OPTION>
+		<OPTION value="toArb">Kanji Numerals to Arabic</OPTION>
+		<OPTION value="kanahantozen">ｶﾅ->カナ</OPTION>
+		<OPTION value="kanazentohan">カナ->ｶﾅ</OPTION>
+		<OPTION value="hiratokata">かな->カナ</OPTION>
+		<OPTION value="katatohira">カナ->かな</OPTION>
+	</SELECT>
+	<SELECT name="mysort" id="mysort">
+		<OPTION value="0">sort</OPTION>
+		<OPTION value="SortByNumLarger">Numeric Sort (Descending)</OPTION>
+		<OPTION value="SortByNumSmaller">Numeric Sort (Ascending)</OPTION>
+		<OPTION value="SortByLarger">Text Sort (Descending)</OPTION>
+		<OPTION value="SortBySmaller">Text Sort (Ascending)</OPTION>
+		<OPTION value="myUniq">Remove Duplicate Lines</OPTION>
+		<OPTION value="goi">Word Frequency Count</OPTION>
+		<OPTION value="xtr">Insert Line Break</OPTION>
+		<OPTION value="fTxt">Remove CR in Paragraphs</OPTION>
+		<OPTION value="AddRowNumber">Add Line Numbers</OPTION>
+	</SELECT>
+	<input type="button" value="Count" onclick="ShowStrLength()">
+	<SELECT name="sample" id="sel">
+		<OPTION value="0">Regular Expressions</OPTION>
+		<OPTION value="/^\s*\n//gm">Remove Blank Lines</OPTION>
+		<OPTION value="/^/> /gm">Add Quote Mark</OPTION>
+		<option value="/^/\/\/ /gm">Add //</option>
+		<option value="/$/ </gm">Add &lt; to Line End</option>
+		<option value="/^.*$/> $& < /gm">Add Quote Marks Line Start and End</option>
+		<option value="/[ 　\t]//g">Remove Whitespaces Except CR</option>
+		<OPTION value="/^[^　[「『（［〈《〔【\(\[・※]/　$&/gm">Add Space to Line Start</OPTION>
+		<option value="/^> *//gm">Remove Quote Marks</option>
+		<OPTION value="/(\d)(?=(\d\d\d)+(?!\d))/$1,/g">Insert Comma for Numeric Groups</OPTION>
+		<OPTION value="/[,，]([^0-9０-９])/、$1/g">Convert Non-Digit Commas to 、</OPTION>
+		<OPTION value="/,/\t/g">Convert Comma to Tab</OPTION>
+		<OPTION value="/([^\s　]+)([\s　]+)([^\s　]+)/$3$2$1/gm">Swap Word Pairs</OPTION>
+		<OPTION value="/Java(?!Script)/c#/gm">Negative Lookahead</OPTION>
+		<OPTION value="/下(?=さい)/くだ/gm">Positive Lookahead</OPTION>
+		<OPTION value="/[△▲](?=[0-9])/-/gm">Convert △ to -</OPTION>
+		<OPTION value="/([^。])\n/$1/gm">Remove CR Except After "。" </OPTION>
+		<OPTION value="/\n([^　\n])/$1/g">Remove CR Except Before "　"</OPTION>
+		<OPTION value="/.{35}[、。，。,.．）)」]*/$&\n/gm">Insert CR at 35 Characters</OPTION>
+		<OPTION value="/<.*?>//g">Remove HTML Tags</OPTION>
+		<OPTION value="/\\\\/￥/g">Convert \ to Full-width ￥</OPTION>
+		<OPTION value="/[^（）\t]*（([^（）\t]+)）[^（）\t]*/$1/g">Extract Text Inside Full-width Parentheses</OPTION>
+	</SELECT>
+	<input type="button" value="Grep" onclick="myGrep()" title="Search string using grep. Switch options are available.">
+	<button type="button" onclick="reset_form()">Reset</button><br />
+	<label for="mybefor">Search</label>
+	<input name="mybefor" type="text" size="32" id="mybefor" title="Regular Expression Allowed"/>
+	<label for="myafter">Replace</label> 
+	<input name="myafter" type="text" size="32" id="myafter" title="Regular Expression Allowed"/>
+	<input type="button" id="doReplace" value="Replace" onclick="myreplace()" style="WIDTH: 80px" /><br />
+	<label for="mysw">Flags</label>
+	<input name="mysw" type="text" size="3" id="mysw" value="gm" title="g: global, m: multiline, i: case insensitive"/>
+	<input name="mygrepsw" type="checkbox" id="mygrepsw" value="" title="Display non-matching lines with grep"/>
+	<label for="mygrepsw" title="Display non-matching lines with grep">-v</label>
+	<label>Target History</label>
+	<input type="button" class="btn_history" id="myfirstbtn" value="<<First">
+	<input type="button" class="btn_history" id="mybeforbtn" value="<Previous">
+	<input type="button" class="btn_history" id="myafterbtn" value="Next>">
+	<input type="button" class="btn_history" id="mylastbtn" value="Last>>">
+	<span id="s_rireki">No History</span>
+	<br /><br />
+	<textarea name="upper" cols="100" rows="25" class="textarea" id="upper"></textarea>
+</form>
+Data is processed entirely within the browser using JavaScript and is not sent anywhere. You can use it with confidence.<br />
+Copyright &copy; 2015-2025 Makoto Tomo ver.1.0.9 Updated on 2025-1-2</p>
+</body>
+</html>
