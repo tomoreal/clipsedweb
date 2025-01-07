@@ -151,7 +151,6 @@ function myGrep(){
 	var NextTextS = [];
 	var mycount = 0;
 	if ($('#mybefor').val() === "") return;
-// 置換処理
 	if (myRireki[myRireki.length - 1] !== $('#upper').val())
 		myRireki.push($('#upper').val());	
 		var FindREG = new RegExp($('#mybefor').val(),$('#mysw').val());
@@ -269,7 +268,7 @@ function ShowStrLength() {
     var text = $('#upper').val();
 
     // Count characters (excluding spaces and line breaks)
-    mojisuu = text.replace(/\s/g, "").replace(/　/g, "").length;
+    mojisuu = text.replace(/\s/g, "").replace(/ /g, "").length;
 
     // Count lines
     num = text.match(/\r\n|\n/g);
@@ -301,7 +300,7 @@ function delHtmlTags(str) {
 }
 
 function goi(str) {
-	var	aaa = str.replace(/[^一-龠ーァ-ヶ0-9０-９A-zＡ-ｚ\-－・]/g, "\f").split("\f");
+	var	aaa = str.replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/).filter(Boolean);
 	var	goix = {};
 	var bbb = "";
 	for (var i=0; i < aaa.length ; i++){
@@ -399,17 +398,6 @@ function formatComma(val) {
 	return s;
 }
 
-function KanConv(str) {
-	var reg = new RegExp("([" + suuji + keta1 + "][" + suuji + keta1 + keta2 + "]*)", "g");
-	var src = str;
-	src = src.replace(/廿/g, "二十")
-			.replace(/卅/g, "三十")
-			.replace(/丗/g, "三十");
-	return src.replace(reg,
-	function ($0) {
-		return formatComma(toArb($0));
-	});
-}
 
 function myUniq(){
 	if ($('#upper').val() === '') return;
@@ -428,53 +416,37 @@ function xtr(str) {
     let userNum = window.prompt("Enter the number of characters to wrap", "70");
     userNum = userNum.toOneByteAlphaNumeric();
     if (userNum > 0) orikaeshi = parseInt(userNum, 10);
-
-    // 段落ごとに分割（空行もそのまま残す）
-    let paragraphs = str.split(/\n{2,}/); // 2つ以上の連続した改行で分割
+    let paragraphs = str.split(/\n{2,}/);
     let result = [];
-
     paragraphs.forEach(paragraph => {
         if (paragraph === "") {
-            // 空行はそのまま追加
             result.push("");
         } else {
-            let words = paragraph.split(/(\s+)/); // 単語と空白を含む配列に分割
+            let words = paragraph.split(/(\s+)/);
             let countNo = 0;
             let currentLine = "";
             let wrappedParagraph = "";
-
             for (let i = 0; i < words.length; i++) {
                 let word = words[i];
                 let wordLength = 0;
-
-                // 文字数を計算（全角2文字、半角1文字）
                 for (let char of word) {
-                    wordLength += char.match(/[ -~｡-ﾟ]/) ? 1 : 2; // 半角は1、全角は2
+                    wordLength += char.match(/[ -~｡-ﾟ]/) ? 1 : 2;
                 }
-
                 if (countNo + wordLength > orikaeshi) {
-                    // 行の幅を超えた場合、新しい行にする
                     wrappedParagraph += currentLine.trim() + "\n";
                     currentLine = word;
                     countNo = wordLength;
                 } else {
-                    // 現在の行に単語を追加
                     currentLine += word;
                     countNo += wordLength;
                 }
             }
-
-            // 最後の行を追加
             if (currentLine) {
                 wrappedParagraph += currentLine.trim();
             }
-
-            // 折り返した段落を結果に追加
             result.push(wrappedParagraph);
         }
     });
-
-    // 空行が存在する場合のみ空行で結合
     return result.filter(paragraph => paragraph !== "").join("\n\n") + (result.length > 1 ? "\n\n" : "");
 }
 
@@ -483,7 +455,7 @@ function fTxt (str){
 	myChar = str.split("");
 	for (var i = 0; i < myChar.length; i ++) {
 		if ( i > 1 && myChar[i].match(/\n/) && i < myChar.length - 1) {
-			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/[　 「『（［〈《〔【\(\[・※]/)) {
+			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/[ 「『（［〈《〔【\(\[・※]/)) {
 				myResult = myResult + myChar[i];
 			}
 		}
@@ -523,7 +495,7 @@ function toLower(str) {
 </script>
 <style type="text/css">
 .textarea {
-	font-family: "ＭＳ ゴシック", "MS Gothic", "Osaka－等幅", Osaka-mono, monospace;
+	font-family: "Courier New", Courier, "Lucida Console", monospace;
 	width: 99%;
 	overflow:auto;
 }
@@ -579,7 +551,7 @@ function toLower(str) {
 		<OPTION value="/([^\s]+)([\s]+)([^\s]+)/$3$2$1/gm">Swap Word Pairs</OPTION>
 		<OPTION value="/Java(?!Script)/c#/gm">Negative Lookahead</OPTION>
 		<OPTION value="/submit(?= it)/send/gm">Positive Lookahead</OPTION>
-		<OPTION value="/[△▲](?=[0-9])/-/gm">Convert △ to -</OPTION>
+		<OPTION value="/\(([\d,]+)\)/-$1/gm">Convert () to -</OPTION>
 		<OPTION value="/([^.])\n/$1/gm">Remove CR Except After "." </OPTION>
 		<OPTION value="/\n([^ \n])/$1/g">Remove CR Except Before "blank"</OPTION>
 		<OPTION value="/<.*?>//g">Remove HTML Tags</OPTION>
@@ -606,7 +578,8 @@ function toLower(str) {
 	<br /><br />
 	<textarea name="upper" cols="100" rows="25" class="textarea" id="upper"></textarea>
 </form>
+<a href="./clipsedweb.html" target="new">clipsedweb(Jananese version)</a><br />
 Data is processed entirely within the browser using JavaScript and is not sent anywhere. You can use it with confidence.<br />
-Copyright &copy; 2015-2025 Makoto Tomo ver.1.0.9 Updated on 2025-1-2</p>
+Copyright &copy; 2015-2025 Makoto Tomo ver.1.1.0 Updated on 2025-1-7</p>
 </body>
 </html>
