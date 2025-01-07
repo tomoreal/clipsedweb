@@ -651,7 +651,6 @@ function toLower(str) {
 // アルファベットを小文字に
 	return str.toLowerCase();;
 }
-
 </script>
 <style type="text/css">
 .textarea {
@@ -750,5 +749,21 @@ function toLower(str) {
 <a href="./clipsedweb_e.html" target="new">clipsedweb(English version)</a><br />
 データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
 Copyright &copy; 2015-2025 Makoto Tomo ver.1.1.0 2025-1-7更新</p>
-</body>
+<script>
+    const textarea_upper = document.getElementById("upper");
+    textarea_upper.addEventListener("keydown", function(event) {
+      if (event.key === "Tab") {
+        event.preventDefault(); // デフォルトのタブ動作を無効化
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+
+        // 現在のテキストにタブ文字を挿入
+        this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+
+        // カーソル位置を調整
+        this.selectionStart = this.selectionEnd = start + 1;
+      }
+    });
+  </script>
+  </body>
 </html>
