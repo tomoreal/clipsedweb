@@ -370,10 +370,19 @@ function StrRev(str) {
 function WordRev(str) {
     var sortedArray = [];
     var targetArray = str.split("\n");
+    
     for (var i = 0; i < targetArray.length; i++) {
-        var words = targetArray[i].split(/\s+/);
-        sortedArray[i] = words.reverse().join(" ");
+        var wordsAndDelimiters = targetArray[i].match(/(\S+|\s+)/g);
+        
+        if (wordsAndDelimiters) {
+            var words = wordsAndDelimiters.filter(item => /\S/.test(item)).reverse();
+            var j = 0;
+            sortedArray[i] = wordsAndDelimiters.map(item => /\S/.test(item) ? words[j++] : item).join("");
+        } else {
+            sortedArray[i] = "";
+        }
     }
+    
     return sortedArray.join("\n");
 }
 

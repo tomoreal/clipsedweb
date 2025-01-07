@@ -464,10 +464,23 @@ function StrRev(str) {
 function WordRev(str) {
     var sortedArray = [];
     var targetArray = str.split("\n");
+    
     for (var i = 0; i < targetArray.length; i++) {
-        var words = targetArray[i].split(/\s+/);
-        sortedArray[i] = words.reverse().join(" ");
+        // 単語と区切り文字をキャプチャする正規表現
+        var wordsAndDelimiters = targetArray[i].match(/(\S+|\s+)/g);
+        
+        if (wordsAndDelimiters) {
+            // 単語部分（非空白）だけを抽出して逆順にする
+            var words = wordsAndDelimiters.filter(item => /\S/.test(item)).reverse();
+            // 区切り文字をそのまま保持しながら置き換え
+            var j = 0;
+            sortedArray[i] = wordsAndDelimiters.map(item => /\S/.test(item) ? words[j++] : item).join("");
+        } else {
+            // 空行の場合そのまま保持
+            sortedArray[i] = "";
+        }
     }
+    
     return sortedArray.join("\n");
 }
 
