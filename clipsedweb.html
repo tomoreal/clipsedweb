@@ -220,6 +220,7 @@ $(document).ready(function(){
 			if (cmd == "delHtmlTags") $('#upper').val(delHtmlTags($('#upper').val()));
 			if (cmd == "LineReverce") $('#upper').val(LineReverce($('#upper').val()));
 			if (cmd == "StrRev") $('#upper').val(StrRev($('#upper').val()));
+			if (cmd == "WordRev") $('#upper').val(WordRev($('#upper').val()));
 			if (cmd == "toArb") $('#upper').val(KanConv($('#upper').val()));
 			if (cmd == "katatohira") $('#upper').val(katatohira($('#upper').val()));
 			if (cmd == "hiratokata") $('#upper').val(hiratokata($('#upper').val()));
@@ -337,14 +338,34 @@ function toHankaku(motoText){
 }
 
 function ShowStrLength() {
-	// 文字数と行数を数える
-	var mojisuu, num, gyosuu, avgMoji;
-	mojisuu = $('#upper').val().replace(/\s/g,"").replace(/　/g,"").length;
-	num = $('#upper').val().match(/\r\n|\n/g);
-	if(num !== null){gyosuu = num.length +1; }
-	else{gyosuu = 1;}
-	avgMoji = mojisuu / gyosuu;
-	alert(mojisuu.toLocaleString() + "字(スペース、改行カウントせず)\n" + gyosuu.toLocaleString() + "行\n" + Math.round(avgMoji).toLocaleString() + "字/行" );
+    // count chars, lines, and words
+    var mojisuu, num, gyosuu, avgMoji, wordCount;
+    var text = $('#upper').val();
+
+    // Count characters (excluding spaces and line breaks)
+    mojisuu = text.replace(/\s/g, "").replace(/ 　/g, "").length;
+
+    // Count lines
+    num = text.match(/\r\n|\n/g);
+    if (num !== null) {
+        gyosuu = num.length + 1;
+    } else {
+        gyosuu = 1;
+    }
+
+    // Calculate average characters per line
+    avgMoji = mojisuu / gyosuu;
+
+    // Count words (assuming words are sequences of alphabetic characters)
+    wordCount = (text.match(/\b[a-zA-Z]+\b/g) || []).length;
+
+    // Display results
+    alert(
+        mojisuu.toLocaleString() + " 文字 (空白改行以外)\n" +
+        gyosuu.toLocaleString() + " 行（含 空行\n" +
+        Math.round(avgMoji).toLocaleString() + " 文字/行\n" +
+        wordCount.toLocaleString() + " words（英単語、数列のみ）"
+    );
 }
 
 function delHtmlTags(str) {
@@ -438,6 +459,16 @@ function StrRev(str) {
 	}
 	// ソート結果を書き戻す
 	return sortedArray.join("\n");
+}
+
+function WordRev(str) {
+    var sortedArray = [];
+    var targetArray = str.split("\n");
+    for (var i = 0; i < targetArray.length; i++) {
+        var words = targetArray[i].split(/\s+/);
+        sortedArray[i] = words.reverse().join(" ");
+    }
+    return sortedArray.join("\n");
 }
 
 function AddRowNumber(str) {
@@ -656,6 +687,7 @@ function toLower(str) {
 		<OPTION value="delHtmlTags">HTMLタグ全削除</OPTION>
 		<OPTION value="LineReverce">行を逆順に</OPTION>
 		<OPTION value="StrRev">文字を反転</OPTION>
+		<OPTION value="WordRev">単語を反転</OPTION>
 		<OPTION value="toArb">漢数字をアラビア数字に</OPTION>
 	</SELECT>
 	<SELECT name="mysort" id="mysort">
@@ -715,9 +747,8 @@ function toLower(str) {
 	<br /><br />
 	<textarea name="upper" cols="100" rows="25" class="textarea" id="upper"></textarea>
 </form>
-<a href="http://js.studio-kingdom.com/javascript/regexp" target="new">正規表現のヒント(別サイト)</a>
-<a href="http://www.cityjp.com/javascript/programmer/index.html" target="new">プログラム支援スクリプト(別サイト)</a><br />
+<a href="./clipsedweb_e.html" target="new">clipsedweb(English version)</a><br />
 データはブラウザ内蔵のjavascriptで処理され、どこにも送られません。安心してご利用下さい。<br />
-Copyright &copy; 2015-2025 Makoto Tomo ver.1.0.9 2025-1-2更新</p>
+Copyright &copy; 2015-2025 Makoto Tomo ver.1.0.0 2025-1-7更新</p>
 </body>
 </html>
