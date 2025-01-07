@@ -581,5 +581,21 @@ function toLower(str) {
 <a href="./clipsedweb.html" target="new">clipsedweb(Jananese version)</a><br />
 Data is processed entirely within the browser using JavaScript and is not sent anywhere. You can use it with confidence.<br />
 Copyright &copy; 2015-2025 Makoto Tomo ver.1.1.0 Updated on 2025-1-7</p>
+<script>
+    const textarea_upper = document.getElementById("upper");
+    textarea_upper.addEventListener("keydown", function(event) {
+      if (event.key === "Tab") {
+        event.preventDefault(); // デフォルトのタブ動作を無効化
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+
+        // 現在のテキストにタブ文字を挿入
+        this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+
+        // カーソル位置を調整
+        this.selectionStart = this.selectionEnd = start + 1;
+      }
+    });
+  </script>
 </body>
 </html>
