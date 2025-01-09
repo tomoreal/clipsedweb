@@ -282,7 +282,7 @@ function ShowStrLength() {
     avgMoji = mojisuu / gyosuu;
 
     // Count words (assuming words are sequences of alphabetic characters)
-    wordCount = (text.match(/\b[a-zA-Z]+\b/g) || []).length;
+    wordCount = (text.match(/\b[a-zA-Z0-9]+\b/g) || []).length;
 
     // Display results
     alert(
