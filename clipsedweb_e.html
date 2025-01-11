@@ -207,7 +207,7 @@ $(document).ready(function(){
 			if (cmd == "LineReverce") $('#upper').val(LineReverce($('#upper').val()));
 			if (cmd == "StrRev") $('#upper').val(StrRev($('#upper').val()));
 			if (cmd == "WordRev") $('#upper').val(WordRev($('#upper').val()));
-			$("select#henkan").val("0");
+			$("select#henkan").val("0").blur();
 			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 				myRireki.push($('#upper').val());
 				MyhistoryNo = myRireki.length;
@@ -232,7 +232,7 @@ $(document).ready(function(){
 			if (cmd == "xtr") $('#upper').val(xtr($('#upper').val()));
 			if (cmd == "fTxt") $('#upper').val(fTxt($('#upper').val()));
 			if (cmd == "AddRowNumber") $('#upper').val(AddRowNumber($('#upper').val()));
-			$("select#mysort").val("0");
+			$("select#mysort").val("0").blur();
 			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 				myRireki.push($('#upper').val());
 				MyhistoryNo = myRireki.length;
@@ -244,7 +244,7 @@ $(document).ready(function(){
 
 $(document).ready(function(){
 	$('#sel').on('change', function() {
-		$("#sel").val("0");
+		$("#sel").val("0").blur();
 	});
 });
 
