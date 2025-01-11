@@ -224,7 +224,7 @@ $(document).ready(function(){
 			if (cmd == "toArb") $('#upper').val(KanConv($('#upper').val()));
 			if (cmd == "katatohira") $('#upper').val(katatohira($('#upper').val()));
 			if (cmd == "hiratokata") $('#upper').val(hiratokata($('#upper').val()));
-			$("select#henkan").val("0");
+			$("select#henkan").val("0").blur();
 			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 				myRireki.push($('#upper').val());	// 変換後の値を記憶
 				MyhistoryNo = myRireki.length;
@@ -250,7 +250,7 @@ $(document).ready(function(){
 			if (cmd == "xtr") $('#upper').val(xtr($('#upper').val()));
 			if (cmd == "fTxt") $('#upper').val(fTxt($('#upper').val()));
 			if (cmd == "AddRowNumber") $('#upper').val(AddRowNumber($('#upper').val()));
-			$("select#mysort").val("0");
+			$("select#mysort").val("0").blur();
 			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 				myRireki.push($('#upper').val());	// 変換後の値を記憶
 				MyhistoryNo = myRireki.length;
@@ -263,7 +263,7 @@ $(document).ready(function(){
 $(document).ready(function(){
 // サンプル正規表現を選択後、元に戻す
 	$('#sel').on('change', function() {
-		$("#sel").val("0");
+		$("#sel").val("0").blur();
 	});
 });
 
