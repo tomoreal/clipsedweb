@@ -5,11 +5,10 @@
 <meta name="author" content="Makoto Tomo" />
 <meta name="keywords" content="clipsedweb, javascript, jquery, replace, regExp, substitution, regex" />
 <meta name="description" content="A web service for substitutions using regular expressions. Web version of the Windows software clipsed." />
-<meta name="description" content="version 1.0.8 2024/1/5" />
+<meta name="description" content="version 1.1.1 2025/1/14" />
 <link rel="icon" href="favicon.ico">
 <title>clipsedWeb</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<!--script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script type="text/javascript">
 var myRireki = [], MyhistoryNo = 0; myRegRireki = [], MyRegHistoryNo = 0;
 
@@ -299,72 +298,78 @@ function delHtmlTags(str) {
 				.replace(/<.*?>/g, '');
 }
 
-function goi(str) {
-	var	aaa = str.replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/).filter(Boolean);
-	var	goix = {};
-	var bbb = "";
-	for (var i=0; i < aaa.length ; i++){
-		if (aaa[i] !== "") {
-			if (goix[aaa[i]] > 0) {
-				goix[aaa[i]]++;
-			}
-			else {
-				goix[aaa[i]] =1;
-			}
-		}
-	}
-	var aSIN = [];
-	for( i in goix ){
-		aSIN.push({key:i,val:goix[i]});
-	}
-	aSIN.sort(largeVal);
-	function largeVal(a,b){ return (a.val < b.val) ? 1 : -1 ; }
+function goi(input) {
+  const words = input.replace(/[^a-zA-Z0-9\s]/g, "\f").split("\f");
+  const wordCounts = {};
 
-	for (i=0; i < aSIN.length ; i++) {
-		bbb = bbb + aSIN[i].val.toLocaleString() + '\t' + aSIN[i].key + '\n';
-	}
-	return bbb;
+  words.forEach(word => {
+    if (word) {
+      wordCounts[word] = (wordCounts[word] || 0) + 1;
+    }
+  });
+
+  const sortedWordCounts = Object.entries(wordCounts)
+    .map(([key, val]) => ({ key, val }))
+    .sort((a, b) => b.val - a.val);
+
+  return sortedWordCounts
+    .map(entry => `${entry.val.toLocaleString()}\t${entry.key}`)
+    .join("\n");
 }
 
-function SortByNumLarger(str) {
-	var targetArray = str.replace(/\n+$/,"").split("\n");
-	var sortedArray = targetArray.sort( function(a,b) {
-		return Number(b) - Number(a);
-	} );
-	return sortedArray.join("\n");
+function SortByNumLarger(input) {
+  const lines = input
+    .split("\n")
+    .map(line => line.trim()) 
+    .filter(line => line !== "");
+  
+  const sortedLines = lines.sort((a, b) => Number(b) - Number(a));
+  
+  return sortedLines.join("\n");
 }
 
-function SortByNumSmaller(str) {
-	var targetArray = str.replace(/\n+$/,"").split("\n");
-	var sortedArray = targetArray.sort( function(a,b) {
-		return Number(a) - Number(b);
-	} );
-	return sortedArray.join("\n");
+function SortByNumSmaller(input) {
+  const lines = input
+    .split("\n")
+    .map(line => line.trim()) 
+    .filter(line => line !== ""); 
+  
+  const sortedLines = lines.sort((a, b) => Number(a) - Number(b));
+  
+  return sortedLines.join("\n");
 }
 
-function SortByLarger(str) {
-	var targetArray = str.replace(/\n+$/,"").split("\n");
-	var sortedArray = targetArray.sort().reverse();
-	return sortedArray.join("\n");
+function SortByLarger(input) {
+  const lines = input
+    .split("\n")
+    .map(line => line.trim()) 
+    .filter(line => line !== "");
+
+  const sortedLines = lines.sort().reverse();
+
+  return sortedLines.join("\n");
 }
 
-function SortBySmaller(str) {
-	var targetArray = str.replace(/\n+$/,"").split("\n");
-	var sortedArray = targetArray.sort();
-	return sortedArray.join("\n");
-}
+function SortBySmaller(input) {
+  const lines = input
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line !== "");
 
+  const sortedLines = lines.sort();
+
+  return sortedLines.join("\n");
+}
 function LineReverce(str) {
 	return str.trimEnd().split("\n").reverse().join("\n");
 }
 
-function StrRev(str) {
-	var sortedArray = [];
-	var targetArray = str.split("\n");
-	for (var i=0; i < targetArray.length ; i++) {
-		sortedArray[i] = targetArray[i].split("").reverse().join("");
-	}
-	return sortedArray.join("\n");
+function StrRev(input) {
+  const reversedLines = input
+    .split("\n")
+    .map(line => line.split("").reverse().join(""));
+
+  return reversedLines.join("\n");
 }
 
 function WordRev(str) {
@@ -386,15 +391,12 @@ function WordRev(str) {
     return sortedArray.join("\n");
 }
 
-function AddRowNumber(str) {
-    var targetArray = str.split("\n");
-    var myrtn = "";
+function AddRowNumber(input) {
+  const numberedLines = input
+    .split("\n")
+    .map((line, index) => `${index + 1}: ${line}`);
 
-    for (var i = 0; i < targetArray.length; i++) {
-        myrtn += (i + 1) + ": " + targetArray[i] + "\n";
-    }
-
-    return myrtn;
+  return numberedLines.join("\n");
 }
 
 function formatComma(val) {
@@ -408,16 +410,18 @@ function formatComma(val) {
 }
 
 
-function myUniq(){
-	if ($('#upper').val() === '') return;
-	var Text1S = $('#upper').val().replace(/\r\n/g,"\n").replace(/\r/g,"\n").replace(/\n+/g,"\n").replace(/^\n|\n$/g,"").split("\n").sort();
-	var Text2S = [];
-	var TextTemp = '';
-	for (var i in Text1S){
-		if (TextTemp != Text1S[i]) Text2S.push(Text1S[i]);
-		TextTemp = Text1S[i];
-	}
-	return Text2S.join("\n");
+function myUniq() {
+  const upperValue = $('#upper').val();
+  
+  if (!upperValue) return;
+
+  const uniqueLines = upperValue
+    .replace(/\r\n|\r/g, "\n")
+    .split("\n")
+    .sort()
+    .filter((value, index, self) => self[index] !== self[index - 1]);
+  
+  return uniqueLines.join("\n");
 }
 
 function xtr(str) {
@@ -459,20 +463,24 @@ function xtr(str) {
     return result.filter(paragraph => paragraph !== "").join("\n\n") + (result.length > 1 ? "\n\n" : "");
 }
 
-function fTxt (str){
-	var myChar = [], countNo = 0 , myResult = "";
-	myChar = str.split("");
-	for (var i = 0; i < myChar.length; i ++) {
-		if ( i > 1 && myChar[i].match(/\n/) && i < myChar.length - 1) {
-			if (myChar[i-1].match(/[。。」』》］\]｡｣\s]/) || myChar[i+1].match(/[ 「『（［〈《〔【\(\[・※]/)) {
-				myResult = myResult + myChar[i];
-			}
-		}
-		else {
-			myResult = myResult + myChar[i];
-		}
-	}
-	return myResult;
+function fTxt(str) {
+  const myChar = str.split("");
+  let myResult = "";
+
+  myChar.forEach((char, i) => {
+    if (i > 0 && char.match(/\n/) && i < myChar.length - 1) {
+      const prevChar = myChar[i - 1];
+      const nextChar = myChar[i + 1];
+
+      if (prevChar.match(/[。。」』》］\]｡｣\s]/) || nextChar.match(/[　 「『（［〈《〔【\(\[・※]/)) {
+        myResult += char;
+      }
+    } else {
+      myResult += char;
+    }
+  });
+
+  return myResult;
 }
 
 $(window).bind("resize ready", function(event){
@@ -588,8 +596,8 @@ function toLower(str) {
 	<textarea name="upper" cols="100" rows="25" class="textarea" id="upper"></textarea>
 </form>
 <a href="./clipsedweb.html">clipsedweb(Jananese version)</a><br />
-Data is processed entirely within the browser using JavaScript and is not sent anywhere. You can use it with confidence.<br />
-Copyright &copy; 2015-2025 Makoto Tomo ver.1.1.0 Updated on 2025-1-7</p>
+Data is processed entirely within the browser using JavaScript and is not sent anywhere. <br />
+Copyright &copy; 2015-2025 Makoto Tomo ver.1.1.1 Updated on 2025-1-14</p>
 <script>
     const textarea_upper = document.getElementById("upper");
     textarea_upper.addEventListener("keydown", function(event) {
