@@ -223,6 +223,7 @@ $(document).ready(function(){
 			if (cmd == "toArb") $('#upper').val(KanConv($('#upper').val()));
 			if (cmd == "katatohira") $('#upper').val(katatohira($('#upper').val()));
 			if (cmd == "hiratokata") $('#upper').val(hiratokata($('#upper').val()));
+			if (cmd == "formatEdinetText") $('#upper').val(formatEdinetText($('#upper').val()));
 			$("select#henkan").val("0").blur();
 			if (myRireki[myRireki.length - 1] !== $('#upper').val()) {
 				myRireki.push($('#upper').val());	// 変換後の値を記憶
@@ -645,6 +646,25 @@ function fTxt(str) {
   return myResult;
 }
 
+function formatEdinetText(text) {
+	//Edinetの財務諸表の不要文字を削除する
+	// 1. △を-に置換（「△は」の△以外）
+	text = text.replace(/△(?!は)/g, '-');
+
+	// 2. ※印からnon-break spaceまでを削除
+	// \xa0 は non-break space（NBSP）
+	text = text.replace(/[※*＊注][０-９0-9,、※]*\xa0/g, '');
+
+	// 3. ※印に続く数字などを削除
+	text = text.replace(/[※*＊注][０-９0-9,、※]*/g, '');
+
+	// 4. 「－」だけの行（セル）を空白にする
+	// 改行・タブ区切りどちらにも対応
+	text = text.replace(/(^|\t)[-－―](?=$|\t|\n)/gm, '$1');
+
+	return text;
+}
+
 $(window).bind("resize ready", function(event){
 	adjustHight();
 });
@@ -712,6 +732,7 @@ function toLower(str) {
 		<OPTION value="StrRev">文字を反転</OPTION>
 		<OPTION value="WordRev">単語を反転</OPTION>
 		<OPTION value="toArb">漢数字をアラビア数字に</OPTION>
+		<OPTION value="formatEdinetText">Edinet不要文字削除</OPTION>
 	</SELECT>
 	<SELECT name="mysort" id="mysort">
 		<OPTION value="0">ソート</OPTION>
