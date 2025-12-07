@@ -1,0 +1,19 @@
+name: Sync gh-pages with master
+
+on:
+  push:
+    branches:
+      - master  # mainの場合は書き換えてください
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Deploy to gh-pages
+        run: |
+          git checkout gh-pages || git checkout -b gh-pages
+          git reset --hard origin/master
+          git push origin gh-pages --force
