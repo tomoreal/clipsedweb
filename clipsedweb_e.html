@@ -228,6 +228,7 @@ $(document).ready(function(){
 			if (cmd == "SortByLarger") $('#upper').val(SortByLarger($('#upper').val()));
 			if (cmd == "SortBySmaller") $('#upper').val(SortBySmaller($('#upper').val()));
 			if (cmd == "myUniq") $('#upper').val(myUniq($('#upper').val()));
+			if (cmd == "myUniqOrder") $('#upper').val(myUniqOrder($('#upper').val()));
 			if (cmd == "xtr") $('#upper').val(xtr($('#upper').val()));
 			if (cmd == "fTxt") $('#upper').val(fTxt($('#upper').val()));
 			if (cmd == "AddRowNumber") $('#upper').val(AddRowNumber($('#upper').val()));
@@ -424,6 +425,24 @@ function myUniq() {
   return uniqueLines.join("\n");
 }
 
+function myUniqOrder(input) {
+  const upperValue = input !== undefined ? input : $('#upper').val();
+  if (!upperValue) return "";
+
+  const seen = new Set();
+  const result = [];
+
+  for (const line of upperValue.split(/\r?\n/)) {
+    if (line.trim() === '') continue;
+    if (!seen.has(line)) {
+      seen.add(line);
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
 function xtr(str) {
     let orikaeshi = 70;
     let userNum = window.prompt("Enter the number of characters to wrap", "70");
@@ -547,6 +566,7 @@ function toLower(str) {
 		<OPTION value="SortByLarger">Text Sort (Descending)</OPTION>
 		<OPTION value="SortBySmaller">Text Sort (Ascending)</OPTION>
 		<OPTION value="myUniq">Remove Duplicate Lines</OPTION>
+		<OPTION value="myUniqOrder">Deduplicate (Order Preserved)</OPTION>
 		<OPTION value="goi">Word Frequency Count</OPTION>
 		<OPTION value="xtr">Formatting with a specified number</OPTION>
 		<OPTION value="fTxt">Remove CR in Paragraphs</OPTION>

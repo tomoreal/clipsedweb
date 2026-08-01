@@ -247,6 +247,7 @@ $(document).ready(function(){
 			if (cmd == "SortByLarger") $('#upper').val(SortByLarger($('#upper').val()));
 			if (cmd == "SortBySmaller") $('#upper').val(SortBySmaller($('#upper').val()));
 			if (cmd == "myUniq") $('#upper').val(myUniq($('#upper').val()));
+			if (cmd == "myUniqOrder") $('#upper').val(myUniqOrder($('#upper').val()));
 			if (cmd == "xtr") $('#upper').val(xtr($('#upper').val()));
 			if (cmd == "fTxt") $('#upper').val(fTxt($('#upper').val()));
 			if (cmd == "AddRowNumber") $('#upper').val(AddRowNumber($('#upper').val()));
@@ -595,6 +596,24 @@ function myUniq() {
   return uniqueLines.join("\n");
 }
 
+function myUniqOrder(input) {
+  const upperValue = input !== undefined ? input : $('#upper').val();
+  if (!upperValue) return "";
+
+  const seen = new Set();
+  const result = [];
+
+  for (const line of upperValue.split(/\r?\n/)) {
+    if (line.trim() === '') continue;
+    if (!seen.has(line)) {
+      seen.add(line);
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
 function xtr (str){
 	// 全角35文字で折り返し。禁則有り。
 	var myChar = [], countNo = 0 , myResult = "", orikaeshi = 70;
@@ -741,6 +760,7 @@ function toLower(str) {
 		<OPTION value="SortByLarger">文字ソート（降順）</OPTION>
 		<OPTION value="SortBySmaller">文字ソート（昇順）</OPTION>
 		<OPTION value="myUniq">重複行削除</OPTION>
+		<OPTION value="myUniqOrder">単一化（出現順）</OPTION>
 		<OPTION value="goi">単語出現回数</OPTION>
 		<OPTION value="xtr">指定文字数で改行</OPTION>
 		<OPTION value="fTxt">段落内改行削除</OPTION>
